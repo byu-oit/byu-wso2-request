@@ -1,0 +1,29 @@
+{
+  "name": "byu-wso2-request",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "byu-wabs-oauth": "git+https://github.com/byu-oit-appdev/byu-wabs-oauth.git"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5"
+  },
+  "scripts": {
+    "test": "mocha tests/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/byu-oit-appdev/byu-wso2-request.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/byu-oit-appdev/byu-wso2-request/issues"
+  },
+  "homepage": "https://github.com/byu-oit-appdev/byu-wso2-request#readme"
+}
