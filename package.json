@@ -7,7 +7,9 @@
     "test": "tests"
   },
   "dependencies": {
-    "byu-wabs-oauth": "git+https://github.com/byu-oit-appdev/byu-wabs-oauth.git"
+    "byu-wabs-oauth": "git+https://github.com/byu-oit-appdev/byu-wabs-oauth.git",
+    "request": "^2.79.0",
+    "request-promise": "^4.1.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
