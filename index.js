@@ -59,7 +59,7 @@ exports.request = co(function* (requestObject, callback)
         attempts += 1;
         if (!wso2OauthToken)
         {
-            wso2OauthToken = yield oauth.getClientGrantAccessToken();
+            wso2OauthToken = yield oauth.getClientGrantAccessToken(true);
             let now = new Date()
             expiresTimeStamp = new Date(now.getTime() + (wso2OauthToken.expiresIn * 1000));
             logger('Access Token ', wso2OauthToken.accessToken, 'will expire:', expiresTimeStamp, wso2OauthToken.expiresIn, ' seconds from:', now)
