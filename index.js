@@ -26,7 +26,7 @@ const co = Promise.coroutine;
 
 const clientKey = process.env.WSO2_CLIENT_KEY || 'client-id';
 const clientSecret = process.env.WSO2_CLIENT_SECRET || 'client-secret';
-const wellKnownUrl = process.env.WSO2_WELLKNOWN_URL || 'https://api.byu.edu/.well-known/openid-configuration'
+const wellKnownUrl = process.env.WSO2_WELLKNOWN_URL || 'well-known-url'
 
 const oauth = byuOauth(clientKey, clientSecret, wellKnownUrl);
 let wso2OauthToken = null;
