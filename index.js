@@ -15,73 +15,73 @@
  *
  */
 
-"use strict";
+"use strict"
 
 const logger                = require("debug")("byu-wso2-request")
-const byuOauth              = require('byu-wabs-oauth');
-const Promise               = require('bluebird');
+const byuOauth              = require('byu-wabs-oauth')
+const Promise               = require('bluebird')
 const request               = require('request-promise')
 
-const co = Promise.coroutine;
+const co = Promise.coroutine
 
-const clientKey = process.env.WSO2_CLIENT_KEY || 'client-id';
-const clientSecret = process.env.WSO2_CLIENT_SECRET || 'client-secret';
+const clientKey = process.env.WSO2_CLIENT_KEY || 'client-id'
+const clientSecret = process.env.WSO2_CLIENT_SECRET || 'client-secret'
 const wellKnownUrl = process.env.WSO2_WELLKNOWN_URL || 'well-known-url'
 
-const oauth = byuOauth(clientKey, clientSecret, wellKnownUrl);
-let wso2OauthToken = null;
-let expiresTimeStamp = null;
+const oauth = byuOauth(clientKey, clientSecret, wellKnownUrl)
+let wso2OauthToken = null
+let expiresTimeStamp = null
 
 exports.oauthHttpHeader = function(token)
 {
-    return 'Bearer ' + token.accessToken;
+    return 'Bearer ' + token.accessToken
 }
 
 exports.request = co(function* (requestObject, callback)
 {
-    let     attempts = 0;
-    const   maxAttemps = 2;
-    let     response = {};
-    let     err = null;
+    let     attempts = 0
+    const   maxAttemps = 2
+    let     response = {}
+    let     err = null
 
     if (expiresTimeStamp)
     {
         let now = new Date()
         if ( now > expiresTimeStamp)
         {
-            logger('Access token has expired - Revoking token');
-            yield oauth.revokeTokens(wso2OauthToken.accessToken);
-            wso2OauthToken = null;
+            logger('Access token has expired - Revoking token')
+            yield oauth.revokeTokens(wso2OauthToken.accessToken)
+            wso2OauthToken = null
         }
     }
     while (attempts < maxAttemps)
     {
-        attempts += 1;
+        attempts += 1
         if (!wso2OauthToken)
         {
-            wso2OauthToken = yield oauth.getClientGrantAccessToken(true);
+            wso2OauthToken = yield oauth.getClientGrantAccessToken(true)
             let now = new Date()
-            expiresTimeStamp = new Date(now.getTime() + (wso2OauthToken.expiresIn * 1000));
+            expiresTimeStamp = new Date(now.getTime() + (wso2OauthToken.expiresIn * 1000))
             logger('Access Token ', wso2OauthToken.accessToken, 'will expire:', expiresTimeStamp, wso2OauthToken.expiresIn, ' seconds from:', now)
         }
         if (!requestObject.hasOwnProperty('headers'))
         {
-            requestObject.headers = {};
+            requestObject.headers = {}
         }
-        requestObject.headers.Authorization = exports.oauthHttpHeader(wso2OauthToken);
+        requestObject.headers.Authorization = exports.oauthHttpHeader(wso2OauthToken)
 
-        logger('Making attempt', attempts, 'for:', requestObject);
+        logger('Making attempt', attempts, 'for:', requestObject)
         try
         {
-            response = yield request(requestObject);
+            response = yield request(requestObject)
         }
         catch (e)
         {
-            logger("byu-wso2-request error");
-            logger(e);
+            logger("byu-wso2-request error")
+            logger(e)
             if (e.hasOwnProperty('response'))
             {
-                response = e.response;
+                response = e.response
             }
             else
             {
@@ -89,27 +89,31 @@ exports.request = co(function* (requestObject, callback)
             }
             err = e
         }
-        logger('response.statusCode:', response.statusCode);
-        logger('response.body', response.body);
+        logger('response.statusCode:', response.statusCode)
+        logger('response.body', response.body)
 
         if (response.statusCode === 401)
         {
-            logger('Detected unauthorized request.  Revoking token');
-            yield oauth.revokeTokens(wso2OauthToken.accessToken);
-            wso2OauthToken = null;
+            logger('Detected unauthorized request.  Revoking token')
+            yield oauth.revokeTokens(wso2OauthToken.accessToken)
+            wso2OauthToken = null
         }
         else
         {
-            break;
+            break
         }
     }
 
     if (callback)
     {
-        callback(err, response);
+        callback(err, response)
     }
     else
     {
-        return new Promise.resolve(response);
+        if (err)
+        {
+            return new Promise.reject(err)
+        }
+        return new Promise.resolve(response)
     }
 })
