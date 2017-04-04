@@ -56,6 +56,7 @@ exports.request = co(function* (requestObject, callback)
     }
     while (attempts < maxAttemps)
     {
+        err = null
         attempts += 1
         if (!wso2OauthToken)
         {
