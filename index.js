@@ -92,7 +92,7 @@ exports.request = co(function* (requestObject, callback)
         logger('response.statusCode:', response.statusCode)
         logger('response.body', response.body)
 
-        if (response.statusCode === 401)
+        if ((response.statusCode === 401) || (response.statusCode === 400))
         {
             logger('Detected unauthorized request.  Revoking token')
             yield oauth.revokeTokens(wso2OauthToken.accessToken)
