@@ -111,7 +111,7 @@ exports.request = co(function* (requestObject, callback)
                 yield sleep(300)
                 break
             default:
-                if (statusCode >= 400)
+                if (response.statusCode >= 400)
                 {
                     yield sleep(100)
                 }
