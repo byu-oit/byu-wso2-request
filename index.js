@@ -32,6 +32,11 @@ const oauth = byuOauth(clientKey, clientSecret, wellKnownUrl)
 let wso2OauthToken = null
 let expiresTimeStamp = null
 
+function sleep(ms)
+{
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 exports.oauthHttpHeader = function(token)
 {
     return 'Bearer ' + token.accessToken
@@ -40,7 +45,7 @@ exports.oauthHttpHeader = function(token)
 exports.request = co(function* (requestObject, callback)
 {
     let     attempts = 0
-    const   maxAttemps = 2
+    const   maxAttemps = 3
     let     response = {}
     let     err = null
 
@@ -93,15 +98,20 @@ exports.request = co(function* (requestObject, callback)
         logger('response.statusCode:', response.statusCode)
         // logger('response.body', response.body)
 
-        if ((response.statusCode === 401) || (response.statusCode === 400))
+        switch (response.statusCode)
         {
-            logger('Detected unauthorized request.  Revoking token')
-            yield oauth.revokeTokens(wso2OauthToken.accessToken)
-            wso2OauthToken = null
-        }
-        else
-        {
-            break
+            case 401:
+            case 400:
+                logger('Detected unauthorized request.  Revoking token')
+                yield oauth.revokeTokens(wso2OauthToken.accessToken)
+                wso2OauthToken = null
+                break
+            case 502:
+                yield sleep(300)
+                break
+            default:
+                yield sleep(100)
+                break
         }
     }
 
