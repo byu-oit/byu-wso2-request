@@ -59,6 +59,7 @@ exports.request = co(function* (requestObject, callback)
             wso2OauthToken = null
         }
     }
+    wso2Retry:
     while (attempts < maxAttemps)
     {
         err = null
@@ -110,8 +111,15 @@ exports.request = co(function* (requestObject, callback)
                 yield sleep(300)
                 break
             default:
-                yield sleep(100)
-                break
+                if (statusCode >= 400)
+                {
+                    yield sleep(100)
+                }
+                else
+                {
+                    //consider these to be okay.
+                    break wso2Retry
+                }
         }
     }
 
