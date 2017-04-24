@@ -37,7 +37,7 @@ function sleep(ms)
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-exports.oauthHttpHeader = function(token)
+exports.oauthHttpHeaderValue = function(token)
 {
     return 'Bearer ' + token.accessToken
 }
@@ -84,7 +84,7 @@ exports.request = co(function* (requestObject, callback)
         {
             requestObject.headers = {}
         }
-        requestObject.headers.Authorization = exports.oauthHttpHeader(wso2OauthToken)
+        requestObject.headers.Authorization = exports.oauthHttpHeaderValue(wso2OauthToken)
 
         logger('Making attempt', attempts, 'for:', requestObject)
         try

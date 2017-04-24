@@ -54,7 +54,7 @@ describe('wso2requestRetry', function ()
             console.log(Date(), 'sleeping for:', wso2OauthToken.expiresIn + 2);
             // wso2OauthToken.accessToken = "be430f015f8256c47d427e5a28ff4b0";
             sleep.sleep(wso2OauthToken.expiresIn + 2);
-            requestObject.headers.Authorization = wso2Request.oauthHttpHeader(wso2OauthToken);
+            requestObject.headers.Authorization = wso2Request.oauthHttpHeaderValue(wso2OauthToken);
             console.log(Date(), 'Making attempt', attempts);
             try
             {

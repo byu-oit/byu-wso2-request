@@ -49,7 +49,7 @@ describe('wso2requestRetry', function ()
             {
                 requestObject.headers = {};
             }
-            requestObject.headers.Authorization = wso2Request.oauthHttpHeader(wso2OauthToken);
+            requestObject.headers.Authorization = wso2Request.oauthHttpHeaderValue(wso2OauthToken);
 
             yield byuOauth.revokeTokens(wso2OauthToken.accessToken);
 
@@ -112,7 +112,7 @@ describe('wso2requestRetry', function ()
             {
                 requestObject.headers = {};
             }
-            requestObject.headers.Authorization = wso2Request.oauthHttpHeader(wso2OauthToken);
+            requestObject.headers.Authorization = wso2Request.oauthHttpHeaderValue(wso2OauthToken);
 
             yield byuOauth.revokeTokens(wso2OauthToken.accessToken);
 
