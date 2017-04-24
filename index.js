@@ -42,7 +42,7 @@ exports.oauthHttpHeader = function(token)
     return 'Bearer ' + token.accessToken
 }
 
-exports.actingForHeader(requestObject, actingForNetId)
+exports.actingForHeader = function(requestObject, actingForNetId)
 {
     if (!requestObject.hasOwnProperty('headers'))
     {
