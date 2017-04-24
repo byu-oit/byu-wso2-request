@@ -32,6 +32,9 @@ const oauth = byuOauth(clientKey, clientSecret, wellKnownUrl)
 let wso2OauthToken = null
 let expiresTimeStamp = null
 
+const BYU_JWT_HEADER_CURRENT = 'x-jwt-assertion'
+const BYU_JWT_HEADER_ORIGINAL = 'x-jwt-assertion-original'
+
 function sleep(ms)
 {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -51,8 +54,14 @@ exports.actingForHeader = function(requestObject, actingForNetId)
     requestObject.headers["acting-for"] = actingForNetId
 }
 
-exports.request = co(function* (requestObject, callback)
+exports.request = co(function* (requestObject, originalJWT, callback)
 {
+    if ((typeof originalJWT === "function"))
+    {
+        callback = originalJWT
+        originalJWT = null
+        logger("second parameter is the callback - no original JWT")
+    }
     let     attempts = 0
     const   maxAttemps = 3
     let     response = {}
@@ -85,6 +94,11 @@ exports.request = co(function* (requestObject, callback)
             requestObject.headers = {}
         }
         requestObject.headers.Authorization = exports.oauthHttpHeaderValue(wso2OauthToken)
+
+        if (originalJWT)
+        {
+            requestObject.headers[BYU_JWT_HEADER_ORIGINAL] = originalJWT
+        }
 
         logger('Making attempt', attempts, 'for:', requestObject)
         try

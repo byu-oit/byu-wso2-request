@@ -19,7 +19,7 @@ describe('wso2request', function ()
     {
         let requestObject =
             {
-                url: 'https://api.byu.edu/cesapi/applicants/dev/',
+                url: 'https://api.byu.edu/cesapi/applicants/dev/471121066',
                 method: 'GET',
                 json: true,
                 resolveWithFullResponse: true,
@@ -33,14 +33,13 @@ describe('wso2request', function ()
         const response = yield wso2Request(requestObject);
         expect(response.body).to.be.an('object');
         expect(response.statusCode).to.equal(200);
-        expect(response.body.programId).to.equal('32977');
-    }));
+    })).timeout(6000)
 
     it('can get cesapi with callback', co(function *()
     {
         let requestObject =
             {
-                url: 'https://api.byu.edu/cesapi/applicants/dev/',
+                url: 'https://api.byu.edu/cesapi/applicants/dev/471121066',
                 method: 'GET',
                 json: true,
                 resolveWithFullResponse: true,
@@ -55,7 +54,28 @@ describe('wso2request', function ()
         {
             expect(response.body).to.be.an('object');
             expect(response.statusCode).to.equal(200);
-            expect(response.body.programId).to.equal('32977');
         })
-    }));
+    })).timeout(6000)
+
+    it('can get cesapi with original jwt', co(function *()
+    {
+        let requestObject =
+            {
+                url: 'https://api.byu.edu/cesapi/applicants/dev/471121066',
+                method: 'GET',
+                json: true,
+                resolveWithFullResponse: true,
+                simple: true,
+                encoding: 'utf8',
+                headers: {
+                    Accept: 'application/json'
+                }
+            }
+
+        wso2Request(requestObject, process.env.ORIGINAL_JWT, function (err, response)
+        {
+            expect(response.body).to.be.an('object');
+            expect(response.statusCode).to.equal(200);
+        })
+    })).timeout(6000)
 });
