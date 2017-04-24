@@ -42,6 +42,15 @@ exports.oauthHttpHeader = function(token)
     return 'Bearer ' + token.accessToken
 }
 
+exports.actingForHeader(requestObject, actingForNetId)
+{
+    if (!requestObject.hasOwnProperty('headers'))
+    {
+        requestObject.headers = {}
+    }
+    requestObject.headers["acting-for"] = actingForNetId
+}
+
 exports.request = co(function* (requestObject, callback)
 {
     let     attempts = 0
