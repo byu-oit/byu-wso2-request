@@ -124,6 +124,7 @@ exports.request = co(function* (requestObject, originalJWT, callback)
 
         switch (response.statusCode)
         {
+            case 403:
             case 401:
             case 400:
                 logger('Detected unauthorized request.  Revoking token')
