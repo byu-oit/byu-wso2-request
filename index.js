@@ -54,27 +54,39 @@ exports.actingForHeader = function(requestObject, actingForNetId)
     requestObject.headers["acting-for"] = actingForNetId
 }
 
+/**
+ * params requestObject  forwards the request object onto request-promise,  optional key can be wabs
+ *          if the wabs key is present then the authtoken in the wabs key is used.
+ * params callback
+ * @type {Function}
+ */
 exports.request = co(function* (requestObject, originalJWT, callback)
 {
+    //intialization
     if ((typeof originalJWT === "function"))
     {
         callback = originalJWT
         originalJWT = null
         logger("second parameter is the callback - no original JWT")
     }
-    let     attempts = 0
-    const   maxAttemps = 3
-    let     response = {}
-    let     err = null
+    let attempts = 0
+    const maxAttemps = 3
+    let response = {}
+    let err = null
+    const wabs = requestObject.wabs
 
-    if (expiresTimeStamp)
+    //check to see if a wabs key is present
+    if (!wabs)
     {
-        let now = new Date()
-        if ( now > expiresTimeStamp)
+        if (expiresTimeStamp)
         {
-            logger('Access token has expired - Revoking token')
-            yield oauth.revokeTokens(wso2OauthToken.accessToken)
-            wso2OauthToken = null
+            let now = new Date()
+            if (now > expiresTimeStamp)
+            {
+                logger('Access token has expired - Revoking token')
+                yield oauth.revokeTokens(wso2OauthToken.accessToken)
+                wso2OauthToken = null
+            }
         }
     }
     wso2Retry:
@@ -82,22 +94,31 @@ exports.request = co(function* (requestObject, originalJWT, callback)
     {
         err = null
         attempts += 1
-        if (!wso2OauthToken)
-        {
-            wso2OauthToken = yield oauth.getClientGrantAccessToken(true)
-            let now = new Date()
-            expiresTimeStamp = new Date(now.getTime() + (wso2OauthToken.expiresIn * 1000))
-            logger('Access Token ', wso2OauthToken.accessToken, 'will expire:', expiresTimeStamp, wso2OauthToken.expiresIn, ' seconds from:', now)
-        }
+
         if (!requestObject.hasOwnProperty('headers'))
         {
             requestObject.headers = {}
         }
-        requestObject.headers.Authorization = exports.oauthHttpHeaderValue(wso2OauthToken)
 
-        if (originalJWT)
+        if (wabs)
         {
-            requestObject.headers[BYU_JWT_HEADER_ORIGINAL] = originalJWT
+            requestObject.headers.Authorization = exports.oauthHttpHeaderValue(wabs.auth)
+        }
+        else
+        {
+            if (!wso2OauthToken)
+            {
+                wso2OauthToken = yield oauth.getClientGrantAccessToken(true)
+                let now = new Date()
+                expiresTimeStamp = new Date(now.getTime() + (wso2OauthToken.expiresIn * 1000))
+                logger('Access Token ', wso2OauthToken.accessToken, 'will expire:', expiresTimeStamp, wso2OauthToken.expiresIn, ' seconds from:', now)
+            }
+            requestObject.headers.Authorization = exports.oauthHttpHeaderValue(wso2OauthToken)
+
+            if (originalJWT)
+            {
+                requestObject.headers[BYU_JWT_HEADER_ORIGINAL] = originalJWT
+            }
         }
 
         logger('Making attempt', attempts, 'for:', requestObject)
@@ -128,8 +149,15 @@ exports.request = co(function* (requestObject, originalJWT, callback)
             case 401:
             case 400:
                 logger('Detected unauthorized request.  Revoking token')
-                yield oauth.revokeTokens(wso2OauthToken.accessToken)
-                wso2OauthToken = null
+                if (wabs)
+                {
+                    wabs.request.refreshTokens()
+                }
+                else
+                {
+                    yield oauth.revokeTokens(wso2OauthToken.accessToken)
+                    wso2OauthToken = null
+                }
                 break
             case 502:
                 yield sleep(300)
