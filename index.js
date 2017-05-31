@@ -145,7 +145,6 @@ exports.request = co(function* (requestObject, originalJWT, callback)
             err = e
         }
         logger('response.statusCode:', response.statusCode)
-        // logger('response.body', response.body)
 
         switch (response.statusCode)
         {
