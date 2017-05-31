@@ -98,4 +98,25 @@ describe('wso2request', function ()
             expect(response.statusCode).to.equal(200);
         })
     })).timeout(9000)
+
+    it('cesapi with invalid url', co(function *()
+    {
+        let requestObject =
+            {
+                url: 'https://api.byu.edu/cesapikasdfasdf/applicants/dev/471121066',
+                method: 'GET',
+                json: true,
+                resolveWithFullResponse: true,
+                simple: true,
+                encoding: 'utf8',
+                headers: {
+                    Accept: 'application/json'
+                }
+            }
+
+        const response = yield wso2Request(requestObject, process.env.ORIGINAL_JWT);
+        expect(response.body).to.be.an('object');
+        expect(response.statusCode).to.equal(200);
+
+    })).timeout(9000)
 });

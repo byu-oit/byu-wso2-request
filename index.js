@@ -132,7 +132,7 @@ exports.request = co(function* (requestObject, originalJWT, callback)
             logger(e)
             if (e.hasOwnProperty('response'))
             {
-                response = e.response
+                response = e.response || {}
                 logger(response)
                 if (!response.hasOwnProperty('statusCode'))
                 {
