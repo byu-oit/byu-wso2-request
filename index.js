@@ -72,6 +72,7 @@ exports.request = co(function* (requestObject, originalJWT, callback)
     let attempts = 0
     const maxAttemps = 3
     let response = {}
+    let httpStatusCode = 200
     let err = null
     const wabs = requestObject.wabs
 
@@ -125,6 +126,8 @@ exports.request = co(function* (requestObject, originalJWT, callback)
         try
         {
             response = yield request(requestObject)
+            //set the httpStatusCode to 200 if the resolveWithFullResponse option was false
+            httpStatusCode = response.statusCode || 200
         }
         catch (e)
         {
@@ -133,20 +136,17 @@ exports.request = co(function* (requestObject, originalJWT, callback)
             if (e.hasOwnProperty('response'))
             {
                 response = e.response || {}
-                if (!response.hasOwnProperty('statusCode'))
-                {
-                    response.statusCode = 500
-                }
             }
             else
             {
                 response = {statusCode: 500, body: {}}
             }
+            httpStatusCode = response.statusCode || 500
             err = e
         }
-        logger('response.statusCode:', response.statusCode)
+        logger('httpStatusCode:', httpStatusCode)
 
-        switch (response.statusCode)
+        switch (httpStatusCode)
         {
             case 403:
             case 401:
@@ -166,7 +166,7 @@ exports.request = co(function* (requestObject, originalJWT, callback)
                 yield sleep(300)
                 break
             default:
-                if (response.statusCode >= 400)
+                if (httpStatusCode >= 400)
                 {
                     yield sleep(100)
                 }
