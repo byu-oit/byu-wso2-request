@@ -12,7 +12,10 @@ const byuOauth = require('byu-wabs-oauth')(clientKey, clientSecret, wellKnownUrl
 const expect = require('chai').expect;
 const Promise = require('bluebird');
 const request = require('request-promise')
-const sleep = require('sleep')
+const sleep = function (ms)
+    {
+        return new Promise(resolve => setTimeout(resolve, ms))
+    }
 
 const co = Promise.coroutine;
 
@@ -53,7 +56,7 @@ describe('wso2requestRetry', function ()
             let sleepmins = 1
             console.log(Date(), 'sleeping for:', wso2OauthToken.expiresIn + 2);
             // wso2OauthToken.accessToken = "be430f015f8256c47d427e5a28ff4b0";
-            sleep.sleep(wso2OauthToken.expiresIn + 2);
+            yield sleep(wso2OauthToken.expiresIn + 2);
             requestObject.headers.Authorization = wso2Request.oauthHttpHeaderValue(wso2OauthToken);
             console.log(Date(), 'Making attempt', attempts);
             try

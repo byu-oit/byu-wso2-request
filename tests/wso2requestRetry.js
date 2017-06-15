@@ -12,7 +12,6 @@ const byuOauth = require('byu-wabs-oauth')(clientKey, clientSecret, wellKnownUrl
 const expect = require('chai').expect;
 const Promise = require('bluebird');
 const request = require('request-promise')
-const sleep = require('sleep')
 
 const co = Promise.coroutine;
 
