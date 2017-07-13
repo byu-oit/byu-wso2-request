@@ -29,14 +29,6 @@ describe('wso2request', function ()
         let requestObject =
             {
                 url: 'https://api.byu.edu/curriculum/v1.0/academicProgram/32977',
-                method: 'GET',
-                json: true,
-                resolveWithFullResponse: true,
-                simple: true,
-                encoding: 'utf8',
-                headers: {
-                    Accept: 'application/json'
-                }
             }
 
         wso2Request(requestObject, function (err, response)
@@ -52,14 +44,6 @@ describe('wso2request', function ()
         let requestObject =
             {
                 url: 'https://api.byu.edu/curriculum/v1.0/academicProgram/32977',
-                method: 'GET',
-                json: true,
-                resolveWithFullResponse: true,
-                simple: true,
-                encoding: 'utf8',
-                headers: {
-                    Accept: 'application/json'
-                }
             }
 
         wso2Request(requestObject, process.env.ORIGINAL_JWT, function (err, response)
