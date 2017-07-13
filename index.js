@@ -60,7 +60,16 @@ exports.actingForHeader = function(requestObject, actingForNetId)
  * params callback
  * @type {Function}
  */
-exports.request = co(function* (requestObject, originalJWT, callback)
+exports.request = co(function* (requestObject = {
+    method: 'GET',
+    json: true,
+    resolveWithFullResponse: true,
+    simple: true,
+    encoding: 'utf8',
+    headers: {
+      Accept: 'application/json'
+    },
+  }, originalJWT, callback)
 {
     //intialization
     if ((typeof originalJWT === "function"))
