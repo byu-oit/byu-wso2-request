@@ -176,7 +176,7 @@ exports.request = co(function* (settings, originalJWT, callback)
                 yield sleep(300)
                 break
             default:
-                if (httpStatusCode >= 400)
+                if (httpStatusCode >= 500)
                 {
                     yield sleep(100)
                 }
