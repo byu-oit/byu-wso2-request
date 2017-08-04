@@ -29,7 +29,7 @@ const clientKey = process.env.WSO2_CLIENT_KEY || 'client-id'
 const clientSecret = process.env.WSO2_CLIENT_SECRET || 'client-secret'
 const wellKnownUrl = process.env.WSO2_WELLKNOWN_URL || 'well-known-url'
 
-const oauth = byuOauth(clientKey, clientSecret, wellKnownUrl)
+let oauth = byuOauth(clientKey, clientSecret, wellKnownUrl)
 let wso2OauthToken = null
 let expiresTimeStamp = null
 
@@ -39,6 +39,17 @@ const BYU_JWT_HEADER_ORIGINAL = byuJwt.BYU_JWT_HEADER_ORIGINAL
 function sleep(ms)
 {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+exports.setOauthSettings = function (settings)
+{
+    const defaultSettings = {
+        clientKey,
+        clientSecret,
+        wellKnownUrl
+    }
+    Object.assign(settings, defaultSettings)
+    oauth = byuOauth(settings.clientKey, settings.clientSecret, settings.wellKnownUrl)
 }
 
 exports.oauthHttpHeaderValue = function(token)
