@@ -21,6 +21,7 @@ const logger                = require("debug")("byu-wso2-request")
 const byuOauth              = require('byu-wabs-oauth')
 const Promise               = require('bluebird')
 const request               = require('request-promise')
+const byuJwt                = require('byu-jwt')
 
 const co = Promise.coroutine
 
@@ -32,8 +33,8 @@ const oauth = byuOauth(clientKey, clientSecret, wellKnownUrl)
 let wso2OauthToken = null
 let expiresTimeStamp = null
 
-const BYU_JWT_HEADER_CURRENT = 'x-jwt-assertion'
-const BYU_JWT_HEADER_ORIGINAL = 'x-jwt-assertion-original'
+const BYU_JWT_HEADER_CURRENT = byuJwt.BYU_JWT_HEADER_CURRENT
+const BYU_JWT_HEADER_ORIGINAL = byuJwt.BYU_JWT_HEADER_ORIGINAL
 
 function sleep(ms)
 {
