@@ -48,7 +48,7 @@ exports.setOauthSettings = function (settings)
         clientSecret,
         wellKnownUrl
     }
-    Object.assign(settings, defaultSettings)
+    settings = Object.assign(defaultSettings, settings)
     oauth = byuOauth(settings.clientKey, settings.clientSecret, settings.wellKnownUrl)
 }
 
