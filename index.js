@@ -176,7 +176,7 @@ exports.request = co(function* (settings, originalJWT, callback)
                 logger('Detected unauthorized request.  Revoking token')
                 if (wabs)
                 {
-                    wabs.request.refreshTokens()
+                    wabs.refreshTokens()
                 }
                 else
                 {
