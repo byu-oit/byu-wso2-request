@@ -8,10 +8,10 @@
   },
   "dependencies": {
     "byu-jwt": "^0.2.3",
-    "byu-wabs-oauth": "git+https://github.com/byu-oit/byu-wabs-oauth.git",
-    "debug": "^2.6.8",
-    "request": "^2.81.0",
-    "request-promise": "^4.2.1"
+    "byu-wabs-oauth": "^1.1.0",
+    "debug": "^2.6.9",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2"
   },
   "devDependencies": {
     "chai": "^3.5.0",
@@ -24,7 +24,7 @@
     "type": "git",
     "url": "git+https://github.com/byu-oit/byu-wso2-request.git"
   },
-  "author": "",
+  "author": "Brigham Young University - Office of Information Technology",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/byu-oit/byu-wso2-request/issues"
