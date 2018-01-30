@@ -7,9 +7,6 @@
 const setEnv        = require('../lib/setEnv')
 setEnv.setEnvFromFile('testing.json')
 
-process.env.WSO2_CLIENT_KEY = "Us9X67Q7TdqM5LlJpBDr_7OzbdMa"
-process.env.WSO2_CLIENT_SECRET = "l3mFyoi2Z93cUJVw39P8PC3MrTUa"
-
 const wso2Request = require('../index').request;
 const expect = require('chai').expect;
 const Promise = require('bluebird');

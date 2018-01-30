@@ -126,7 +126,7 @@ describe('wso2requestRetry', function ()
                 response = e.response;
             }
             console.log('response.statusCode:', response.statusCode);
-            expect(response.statusCode).to.equal(403);
+            expect(response.statusCode).to.equal(401);
 
             if (response.statusCode === 401)
             {
@@ -138,7 +138,7 @@ describe('wso2requestRetry', function ()
                 break;
             }
         }
-        expect(attempts).to.equal(1);
+        expect(attempts).to.equal(2);
 
     }));
 });

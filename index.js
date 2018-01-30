@@ -98,8 +98,8 @@ exports.request = co(function* (settings, originalJWT, callback)
     let err = null
     const wabs = requestObject.wabs
 
-    //check to see if a wabs key is present
-    if (!wabs)
+    //check to see if a wabs key and a ws02authToken is present
+    if (!wabs && wso2OauthToken)
     {
         if (expiresTimeStamp)
         {

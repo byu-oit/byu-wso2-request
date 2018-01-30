@@ -19,9 +19,8 @@ describe('wso2request', function ()
         }
 
         const response = yield wso2Request(requestObject);
-        expect(response.body).to.be.an('object');
-        expect(response.statusCode).to.equal(200);
-        expect(response.body.programId).to.equal('32977');
+        expect(response.value).to.be.an('object');
+        expect(response.value.identifying.programId.value).to.equal('32977');
     }));
 
     it('can get api with callback', co(function *()
@@ -35,7 +34,7 @@ describe('wso2request', function ()
         {
             expect(response.body).to.be.an('object');
             expect(response.statusCode).to.equal(200);
-            expect(response.body.programId).to.equal('32977');
+            expect(response.body.value.identifying.programId.value).to.equal('32977');
         })
     }));
 
@@ -50,7 +49,7 @@ describe('wso2request', function ()
         {
             expect(response.body).to.be.an('object');
             expect(response.statusCode).to.equal(200);
-            expect(response.body.programId).to.equal('32977');
+            expect(response.body.value.identifying.programId.value).to.equal('32977');
         })
     }));
 });
