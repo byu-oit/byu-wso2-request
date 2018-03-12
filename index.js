@@ -107,7 +107,8 @@ exports.request = co(function* (settings, originalJWT, callback)
             if (now > expiresTimeStamp)
             {
                 logger('Access token has expired - Revoking token')
-                yield oauth.revokeTokens(wso2OauthToken.accessToken)
+                const accessToken = wso2OauthToken.accessToken //make sure execution timing is sync'd
+                yield oauth.revokeTokens(accessToken)
                 wso2OauthToken = null
             }
         }
