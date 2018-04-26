@@ -1,6 +1,6 @@
 {
   "name": "byu-wso2-request",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -10,7 +10,7 @@
     "byu-jwt": "^0.2.3",
     "byu-wabs-oauth": "^1.1.0",
     "debug": "^2.6.9",
-    "request": "^2.83.0",
+    "request": "^2.85.0",
     "request-promise": "^4.2.2"
   },
   "devDependencies": {
