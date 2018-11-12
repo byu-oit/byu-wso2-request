@@ -174,7 +174,7 @@ exports.request = co(function* (settings, originalJWT, callback)
             case 403:
             case 401:
             case 400:
-                logger('Detected unauthorized request.  Revoking token')
+                logger(`Detected unauthorized request.  Revoking token ${wso2OauthToken.accessToken}`)
                 if (wabs)
                 {
                     yield wabs.refreshTokens()
