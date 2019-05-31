@@ -16,7 +16,7 @@
   "devDependencies": {
     "@types/request": "^2.47.1",
     "@types/request-promise": "^4.1.42",
-    "chai": "^3.5.0",
+    "chai": "^4.2.0",
     "mocha": "^5.2.0"
   },
   "scripts": {
