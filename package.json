@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "dependencies": {
-    "byu-jwt": "^0.2.3",
+    "byu-jwt": "^1.0.10",
     "byu-wabs-oauth": "^1.1.0",
     "debug": "^2.6.9",
     "request": "^2.85.0",
