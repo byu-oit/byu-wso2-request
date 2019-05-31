@@ -9,7 +9,7 @@
   "dependencies": {
     "byu-jwt": "^0.2.3",
     "byu-wabs-oauth": "^1.1.0",
-    "debug": "^2.6.9",
+    "debug": "^4.1.1",
     "request": "^2.85.0",
     "request-promise": "^4.2.2"
   },
