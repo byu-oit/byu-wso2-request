@@ -9,7 +9,7 @@
   "dependencies": {
     "bluebird": "^3.5.5",
     "byu-jwt": "^1.0.10",
-    "byu-wabs-oauth": "^1.1.0",
+    "byu-wabs-oauth": "^3.0.0",
     "debug": "^4.1.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.4"
