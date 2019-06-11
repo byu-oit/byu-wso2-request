@@ -11,7 +11,7 @@ setEnv.setEnvFromFile('testing.json')
 const wso2Request = require('../index').request
 const expect = require('chai').expect
 
-describe('wso2request', function () {
+describe('invalidURL', function () {
   it('cesapi with invalid url', async function () {
     let requestObject = {
       url: 'https://api.byu.eduacademicProgramYAPI/v1.0/32977/requirements',

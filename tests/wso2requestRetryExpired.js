@@ -16,7 +16,7 @@ const sleep = function (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-describe('wso2requestRetry', async function () {
+describe('wso2requestRetryExpired', async function () {
   const oauth = await byuOauth(clientKey, clientSecret)
   it('expired', async function () {
     let attempts = 0

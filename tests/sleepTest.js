@@ -11,7 +11,7 @@ function sleep (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-describe('wso2request', function () {
+describe('sleepTest', function () {
   it('can get api', async function () {
     console.log(new Date().getTime())
     await sleep(1000)

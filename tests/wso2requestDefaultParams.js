@@ -7,7 +7,7 @@ setEnv.setEnvFromFile('testing.json')
 const wso2Request = require('../index').request
 const expect = require('chai').expect
 
-describe('wso2request', function () {
+describe('wso2requestDefaultParams', function () {
   it('can get api', async function () {
     let requestObject = {
       url: 'https://api.byu.edu/curriculum/v1.0/academicProgram/32977'
