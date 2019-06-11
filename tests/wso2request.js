@@ -43,12 +43,10 @@ describe('wso2request', function () {
       }
     }
 
-    wso2Request(requestObject, function (err, response) {
-      if (err) throw err
-      expect(response.body).to.be.an('object')
-      expect(response.statusCode).to.equal(200)
-      expect(response.body.value.identifying.programId.value).to.equal('32977')
-    })
+    const response = yield wso2Request(requestObject)
+    expect(response.body).to.be.an('object')
+    expect(response.statusCode).to.equal(200)
+    expect(response.body.value.identifying.programId.value).to.equal('32977')
   }))
 
   it('can get api with original jwt', co(function * () {
@@ -64,11 +62,9 @@ describe('wso2request', function () {
       }
     }
 
-    wso2Request(requestObject, process.env.ORIGINAL_JWT, function (err, response) {
-      if (err) throw err
-      expect(response.body).to.be.an('object')
-      expect(response.statusCode).to.equal(200)
-      expect(response.body.value.identifying.programId.value).to.equal('32977')
-    })
+    const response = yield wso2Request(requestObject, process.env.ORIGINAL_JWT)
+    expect(response.body).to.be.an('object')
+    expect(response.statusCode).to.equal(200)
+    expect(response.body.value.identifying.programId.value).to.equal('32977')
   }))
 })
