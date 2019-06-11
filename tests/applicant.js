@@ -10,12 +10,9 @@ setEnv.setEnvFromFile('testing.json')
 
 const wso2Request = require('../index').request
 const expect = require('chai').expect
-const Promise = require('bluebird')
-
-const co = Promise.coroutine
 
 describe('wso2request', function () {
-  it('cesapi with invalid url', co(function * () {
+  it('cesapi with invalid url', async function () {
     let requestObject = {
       url: 'https://api.byu.edu/cesapi/applicants/dev/471121066',
       method: 'GET',
@@ -29,7 +26,7 @@ describe('wso2request', function () {
     }
 
     try {
-      const response = yield wso2Request(requestObject)
+      const response = await wso2Request(requestObject)
       expect(response.body).to.be.an('object')
       expect(response.statusCode).to.equal(200)
       expect(response.body).to.have.all.keys('basic')
@@ -40,5 +37,5 @@ describe('wso2request', function () {
     } catch (e) {
       expect(e.statusCode).to.equal(404)
     }
-  })).timeout(9000)
+  }).timeout(9000)
 })

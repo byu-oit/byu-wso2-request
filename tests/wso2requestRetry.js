@@ -11,15 +11,12 @@ const clientSecret = process.env.WSO2_CLIENT_SECRET || 'client-secret'
 const wso2Request = require('../index')
 const byuOauth = require('byu-wabs-oauth')
 const expect = require('chai').expect
-const Promise = require('bluebird')
 const request = require('request-promise')
-
-const co = Promise.coroutine
 
 describe('wso2requestRetry', async function () {
   const oauth = await byuOauth(clientKey, clientSecret)
 
-  it('detect unauthorized', co(function * () {
+  it('detect unauthorized', async function () {
     let attempts = 0
     const maxAttemps = 2
     let response = {}
@@ -40,18 +37,18 @@ describe('wso2requestRetry', async function () {
     while (attempts < maxAttemps) {
       attempts += 1
       if (!wso2OauthToken) {
-        wso2OauthToken = yield oauth.getClientGrantToken()
+        wso2OauthToken = await oauth.getClientGrantToken()
       }
       if (!requestObject.hasOwnProperty('headers')) {
         requestObject.headers = {}
       }
       requestObject.headers.Authorization = wso2Request.oauthHttpHeaderValue(wso2OauthToken)
 
-      yield oauth.revokeToken(wso2OauthToken.accessToken)
+      await oauth.revokeToken(wso2OauthToken.accessToken)
 
       console.log('Making attempt', attempts)
       try {
-        response = yield request(requestObject)
+        response = await request(requestObject)
       } catch (e) {
         console.log(e)
         response = e.response
@@ -67,9 +64,9 @@ describe('wso2requestRetry', async function () {
       }
     }
     expect(attempts).to.equal(2)
-  }))
+  })
 
-  it('invalid url', co(function * () {
+  it('invalid url', async function () {
     let attempts = 0
     const maxAttemps = 2
     let response = {}
@@ -90,18 +87,18 @@ describe('wso2requestRetry', async function () {
     while (attempts < maxAttemps) {
       attempts += 1
       if (!wso2OauthToken) {
-        wso2OauthToken = yield oauth.getClientGrantToken()
+        wso2OauthToken = await oauth.getClientGrantToken()
       }
       if (!requestObject.hasOwnProperty('headers')) {
         requestObject.headers = {}
       }
       requestObject.headers.Authorization = wso2Request.oauthHttpHeaderValue(wso2OauthToken)
 
-      yield oauth.revokeToken(wso2OauthToken.accessToken)
+      await oauth.revokeToken(wso2OauthToken.accessToken)
 
       console.log('Making attempt', attempts)
       try {
-        response = yield request(requestObject)
+        response = await request(requestObject)
       } catch (e) {
         console.log(e)
         response = e.response
@@ -117,5 +114,5 @@ describe('wso2requestRetry', async function () {
       }
     }
     expect(attempts).to.equal(2)
-  }))
+  })
 })

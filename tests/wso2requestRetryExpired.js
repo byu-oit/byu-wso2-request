@@ -11,17 +11,14 @@ const clientSecret = process.env.WSO2_CLIENT_SECRET || 'client-secret'
 const wso2Request = require('../index')
 const byuOauth = require('byu-wabs-oauth')
 const expect = require('chai').expect
-const Promise = require('bluebird')
 const request = require('request-promise')
 const sleep = function (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-const co = Promise.coroutine
-
 describe('wso2requestRetry', async function () {
   const oauth = await byuOauth(clientKey, clientSecret)
-  it('expired', co(function * () {
+  it('expired', async function () {
     let attempts = 0
     const maxAttemps = 2
     let response = {}
@@ -42,7 +39,7 @@ describe('wso2requestRetry', async function () {
     while (attempts < maxAttemps) {
       attempts += 1
       if (!wso2OauthToken) {
-        wso2OauthToken = yield oauth.getClientGrantToken()
+        wso2OauthToken = await oauth.getClientGrantToken()
       }
       if (!requestObject.hasOwnProperty('headers')) {
         requestObject.headers = {}
@@ -51,11 +48,11 @@ describe('wso2requestRetry', async function () {
       // let sleepmins = 1
       console.log(Date(), 'sleeping for:', wso2OauthToken.expiresIn + 2)
       // wso2OauthToken.accessToken = "be430f015f8256c47d427e5a28ff4b0";
-      yield sleep(wso2OauthToken.expiresIn + 2)
+      await sleep(wso2OauthToken.expiresIn + 2)
       requestObject.headers.Authorization = wso2Request.oauthHttpHeaderValue(wso2OauthToken)
       console.log(Date(), 'Making attempt', attempts)
       try {
-        response = yield request(requestObject)
+        response = await request(requestObject)
       } catch (e) {
         console.log(e)
         response = e.response
@@ -72,5 +69,5 @@ describe('wso2requestRetry', async function () {
       }
     }
     expect(attempts).to.equal(2)
-  })).timeout(1000000)
+  }).timeout(1000000)
 })
