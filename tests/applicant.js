@@ -43,7 +43,7 @@ describe('wso2request', function ()
             }
             catch (e)
             {
-                expect(e.error.code).to.equal('ENOTFOUND');
+                expect(e.statusCode).to.equal(404);
             }
         
     })).timeout(9000)

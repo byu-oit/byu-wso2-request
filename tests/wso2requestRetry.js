@@ -8,15 +8,17 @@ const clientSecret = process.env.WSO2_CLIENT_SECRET || 'client-secret';
 const wellKnownUrl = process.env.WSO2_WELLKNOWN_URL || 'well-known-url'
 
 const wso2Request = require('../index');
-const byuOauth = require('byu-wabs-oauth')(clientKey, clientSecret, wellKnownUrl);
+const byuOauth = require('byu-wabs-oauth');
 const expect = require('chai').expect;
 const Promise = require('bluebird');
 const request = require('request-promise')
 
 const co = Promise.coroutine;
 
-describe('wso2requestRetry', function ()
+describe('wso2requestRetry', async function ()
 {
+    const oauth = await byuOauth(clientKey, clientSecret)
+
     it('detect unauthorized', co(function *()
     {
         let     attempts = 0;
@@ -42,7 +44,7 @@ describe('wso2requestRetry', function ()
             attempts += 1;
             if (!wso2OauthToken)
             {
-                wso2OauthToken = yield byuOauth.getClientGrantAccessToken();
+                wso2OauthToken = yield oauth.getClientGrantToken();
             }
             if (!requestObject.hasOwnProperty('headers'))
             {
@@ -50,7 +52,7 @@ describe('wso2requestRetry', function ()
             }
             requestObject.headers.Authorization = wso2Request.oauthHttpHeaderValue(wso2OauthToken);
 
-            yield byuOauth.revokeTokens(wso2OauthToken.accessToken);
+            yield oauth.revokeToken(wso2OauthToken.accessToken);
 
             console.log('Making attempt', attempts);
             try
@@ -105,7 +107,7 @@ describe('wso2requestRetry', function ()
             attempts += 1;
             if (!wso2OauthToken)
             {
-                wso2OauthToken = yield byuOauth.getClientGrantAccessToken();
+                wso2OauthToken = yield oauth.getClientGrantToken();
             }
             if (!requestObject.hasOwnProperty('headers'))
             {
@@ -113,7 +115,7 @@ describe('wso2requestRetry', function ()
             }
             requestObject.headers.Authorization = wso2Request.oauthHttpHeaderValue(wso2OauthToken);
 
-            yield byuOauth.revokeTokens(wso2OauthToken.accessToken);
+            yield oauth.revokeToken(wso2OauthToken.accessToken);
 
             console.log('Making attempt', attempts);
             try
