@@ -1,7 +1,7 @@
 {
   "name": "byu-wso2-request",
   "version": "2.0.0",
-  "description": "",
+  "description": "Utility for making a server to server request using wso2 authentication\n",
   "main": "index.js",
   "directories": {
     "test": "test"
