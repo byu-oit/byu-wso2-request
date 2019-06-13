@@ -20,13 +20,18 @@ const byuOauth = require('byu-wabs-oauth')
 const requestPromise = require('request-promise')
 const { BYU_JWT_HEADER_ORIGINAL } = require('byu-jwt')
 
-let oauth = null
-let wso2OauthToken = null
-let expiresTimeStamp = null
+// Exported for test purposes - these should not be considered public
+exports.oauth = null
+exports.wso2OauthToken = null
+exports.expiresTimeStamp = null
 
-exports.setOauthSettings = async function setOauthSettings (clientKey = process.env.WSO2_CLIENT_KEY, clientSecret = process.env.WSO2_CLIENT_SECRET) {
+exports.setOauthSettings = async function setOauthSettings (clientKey, clientSecret) {
+  if (!clientKey) clientKey = process.env.WSO2_CLIENT_KEY
+  if (!clientSecret) clientSecret = process.env.WSO2_CLIENT_SECRET
+
   if (!clientKey || !clientSecret) throw Error('Expected clientKey and clientSecret')
-  oauth = await byuOauth(clientKey, clientSecret)
+
+  exports.oauth = await byuOauth(clientKey, clientSecret)
 }
 
 exports.oauthHttpHeaderValue = function oauthHttpHeaderValue (token) {
@@ -41,7 +46,7 @@ exports.actingForHeader = function actingForHeader (requestObject, actingForNetI
 }
 
 exports.request = async function request (settings, originalJWT) {
-  if (oauth === null) await exports.setOauthSettings() // Try using default values (from environment variables) - This gives a more helpful error if it rejects
+  if (exports.oauth === null) await exports.setOauthSettings() // Try using default values (from environment variables) - This gives a more helpful error if it rejects
 
   const defaultSettings = {
     method: 'GET',
@@ -56,13 +61,13 @@ exports.request = async function request (settings, originalJWT) {
 
   const wabs = requestObject.wabs
 
-  if (!wabs && wso2OauthToken) {
-    if (expiresTimeStamp) {
+  if (!wabs && exports.wso2OauthToken) {
+    if (exports.expiresTimeStamp) {
       const now = new Date()
-      if (now > expiresTimeStamp) {
+      if (now > exports.expiresTimeStamp) {
         logger('Access token has expired - Revoking token')
-        await oauth.revokeToken(wso2OauthToken.accessToken)
-        wso2OauthToken = null
+        await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
+        exports.wso2OauthToken = null
       }
     }
   }
@@ -76,13 +81,13 @@ exports.request = async function request (settings, originalJWT) {
     if (wabs) {
       requestObject.headers.Authorization = exports.oauthHttpHeaderValue(wabs.auth)
     } else {
-      if (!wso2OauthToken) {
-        wso2OauthToken = await oauth.getClientGrantToken()
+      if (!exports.wso2OauthToken) {
+        exports.wso2OauthToken = await exports.oauth.getClientGrantToken()
         const now = new Date()
-        expiresTimeStamp = new Date(now.getTime() + (wso2OauthToken.expiresIn * 1000))
-        logger(`Access Token ${wso2OauthToken.accessToken} will expire: ${expiresTimeStamp} ${wso2OauthToken.expiresIn} seconds from: ${now}`)
+        exports.expiresTimeStamp = new Date(now.getTime() + (exports.wso2OauthToken.expiresIn * 1000))
+        logger(`Access Token ${exports.wso2OauthToken.accessToken} will expire: ${exports.expiresTimeStamp} ${exports.wso2OauthToken.expiresIn} seconds from: ${now}`)
       }
-      requestObject.headers.Authorization = exports.oauthHttpHeaderValue(wso2OauthToken)
+      requestObject.headers.Authorization = exports.oauthHttpHeaderValue(exports.wso2OauthToken)
 
       if (originalJWT) {
         requestObject.headers[BYU_JWT_HEADER_ORIGINAL] = originalJWT
@@ -109,8 +114,8 @@ exports.request = async function request (settings, originalJWT) {
         if (wabs) {
           await wabs.refreshToken()
         } else {
-          await oauth.revokeToken(wso2OauthToken.accessToken)
-          wso2OauthToken = null
+          await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
+          exports.wso2OauthToken = null
         }
         break
       case 502:
