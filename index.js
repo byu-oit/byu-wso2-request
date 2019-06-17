@@ -1,216 +1,138 @@
-/*
- * Copyright 2016 Brigham Young University
- *
- * Licensed under the Apache License, Version 2.0 (the "License")
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
-
-"use strict"
-
-const logger                = require("debug")("byu-wso2-request")
-const byuOauth              = require('byu-wabs-oauth')
-const Promise               = require('bluebird')
-const request               = require('request-promise')
-const byuJwt                = require('byu-jwt')
-
-const co = Promise.coroutine
-
-const clientKey = process.env.WSO2_CLIENT_KEY || 'client-id'
-const clientSecret = process.env.WSO2_CLIENT_SECRET || 'client-secret'
-const wellKnownUrl = process.env.WSO2_WELLKNOWN_URL || 'well-known-url'
-
-let oauth = byuOauth(clientKey, clientSecret, wellKnownUrl)
-let wso2OauthToken = null
-let expiresTimeStamp = null
-
-const BYU_JWT_HEADER_CURRENT = byuJwt.BYU_JWT_HEADER_CURRENT
-const BYU_JWT_HEADER_ORIGINAL = byuJwt.BYU_JWT_HEADER_ORIGINAL
-
-function sleep(ms)
-{
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-exports.setOauthSettings = function (settings)
-{
-    const defaultSettings = {
-        clientKey,
-        clientSecret,
-        wellKnownUrl
-    }
-    settings = Object.assign(defaultSettings, settings)
-    oauth = byuOauth(settings.clientKey, settings.clientSecret, settings.wellKnownUrl)
-}
-
-exports.oauthHttpHeaderValue = function(token)
-{
-    return 'Bearer ' + token.accessToken
-}
-
-exports.actingForHeader = function(requestObject, actingForNetId)
-{
-    if (!requestObject.hasOwnProperty('headers'))
-    {
-        requestObject.headers = {}
-    }
-    requestObject.headers["acting-for"] = actingForNetId
-}
-
 /**
- * params requestObject  forwards the request object onto request-promise,  optional key can be wabs
- *          if the wabs key is present then the authtoken in the wabs key is used.
- * params callback
- * @type {Function}
- */
-exports.request = co(function* (settings, originalJWT, callback)
-{
-    const defaultSettings = {
-        method: 'GET',
-        json: true,
-        simple: true,
-        encoding: 'utf8',
-        headers: {
-            Accept: 'application/json'
-        },
+ *  @license
+ *    Copyright 2019 Brigham Young University
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ **/
+'use strict'
+const logger = require('debug')('byu-wso2-request')
+const byuOauth = require('byu-wabs-oauth')
+const requestPromise = require('request-promise')
+const { BYU_JWT_HEADER_ORIGINAL } = require('byu-jwt')
+
+// Exported for test purposes - these should not be considered public
+exports.oauth = null
+exports.wso2OauthToken = null
+exports.expiresTimeStamp = null
+
+exports.setOauthSettings = async function setOauthSettings (clientKey, clientSecret) {
+  if (!clientKey) clientKey = process.env.WSO2_CLIENT_KEY
+  if (!clientSecret) clientSecret = process.env.WSO2_CLIENT_SECRET
+
+  if (!clientKey || !clientSecret) throw Error('Expected clientKey and clientSecret')
+
+  exports.oauth = await byuOauth(clientKey, clientSecret)
+}
+
+exports.oauthHttpHeaderValue = function oauthHttpHeaderValue (token) {
+  return `Bearer ${token.accessToken}`
+}
+
+exports.actingForHeader = function actingForHeader (requestObject, actingForNetId) {
+  if (!requestObject.hasOwnProperty('headers')) {
+    requestObject.headers = {}
+  }
+  requestObject.headers['acting-for'] = actingForNetId
+}
+
+exports.request = async function request (settings, originalJWT) {
+  if (exports.oauth === null) await exports.setOauthSettings() // Try using default values (from environment variables) - This gives a more helpful error if it rejects
+
+  const defaultSettings = {
+    method: 'GET',
+    json: true,
+    simple: true,
+    encoding: 'utf8',
+    headers: {
+      Accept: 'application/json'
     }
-    const requestObject = Object.assign(defaultSettings, settings)
-    //intialization
-    if ((typeof originalJWT === "function"))
-    {
-        callback = originalJWT
-        originalJWT = null
-        logger("second parameter is the callback - no original JWT")
+  }
+  const requestObject = Object.assign(defaultSettings, settings)
+
+  const wabs = requestObject.wabs
+
+  if (!wabs && exports.wso2OauthToken) {
+    if (exports.expiresTimeStamp) {
+      const now = new Date()
+      if (now > exports.expiresTimeStamp) {
+        logger('Access token has expired - Revoking token')
+        await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
+        exports.wso2OauthToken = null
+      }
     }
-    let attempts = 0
-    const maxAttemps = 3
-    let response = {}
-    let httpStatusCode = 200
-    let err = null
-    const wabs = requestObject.wabs
+  }
 
-    //check to see if a wabs key and a ws02authToken is present
-    if (!wabs && wso2OauthToken)
-    {
-        if (expiresTimeStamp)
-        {
-            let now = new Date()
-            if (now > expiresTimeStamp)
-            {
-                logger('Access token has expired - Revoking token')
-                const accessToken = wso2OauthToken.accessToken //make sure execution timing is sync'd
-                yield oauth.revokeTokens(accessToken)
-                wso2OauthToken = null
-            }
-        }
-    }
-    wso2Retry:
-    while (attempts < maxAttemps)
-    {
-        err = null
-        attempts += 1
+  let response
+  let attemptsMade = 0
+  const maxAttempts = 3
+  while (attemptsMade < maxAttempts) {
+    attemptsMade++
 
-        if (!requestObject.hasOwnProperty('headers'))
-        {
-            requestObject.headers = {}
-        }
+    if (wabs) {
+      requestObject.headers.Authorization = exports.oauthHttpHeaderValue(wabs.auth)
+    } else {
+      if (!exports.wso2OauthToken) {
+        exports.wso2OauthToken = await exports.oauth.getClientGrantToken()
+        const now = new Date()
+        exports.expiresTimeStamp = new Date(now.getTime() + (exports.wso2OauthToken.expiresIn * 1000))
+        logger(`Access Token ${exports.wso2OauthToken.accessToken} will expire: ${exports.expiresTimeStamp} ${exports.wso2OauthToken.expiresIn} seconds from: ${now}`)
+      }
+      requestObject.headers.Authorization = exports.oauthHttpHeaderValue(exports.wso2OauthToken)
 
-        if (wabs)
-        {
-            requestObject.headers.Authorization = exports.oauthHttpHeaderValue(wabs.auth)
-        }
-        else
-        {
-            if (!wso2OauthToken)
-            {
-                wso2OauthToken = yield oauth.getClientGrantAccessToken(true)
-                let now = new Date()
-                expiresTimeStamp = new Date(now.getTime() + (wso2OauthToken.expiresIn * 1000))
-                logger('Access Token ', wso2OauthToken.accessToken, 'will expire:', expiresTimeStamp, wso2OauthToken.expiresIn, ' seconds from:', now)
-            }
-            requestObject.headers.Authorization = exports.oauthHttpHeaderValue(wso2OauthToken)
-
-            if (originalJWT)
-            {
-                requestObject.headers[BYU_JWT_HEADER_ORIGINAL] = originalJWT
-            }
-        }
-
-        logger('Making attempt', attempts, 'for:', requestObject)
-        try
-        {
-            response = yield request(requestObject)
-            //set the httpStatusCode to 200 if the resolveWithFullResponse option was false
-            httpStatusCode = response.statusCode || 200
-        }
-        catch (e)
-        {
-            logger("byu-wso2-request error")
-            logger(e)
-            if (e.hasOwnProperty('response'))
-            {
-                response = e.response || {}
-            }
-            else
-            {
-                response = {statusCode: 500, body: {}}
-            }
-            httpStatusCode = response.statusCode || 500
-            err = e
-        }
-        logger('httpStatusCode:', httpStatusCode)
-
-        switch (httpStatusCode)
-        {
-            case 403:
-            case 401:
-            case 400:
-                logger('Detected unauthorized request.  Revoking token')
-                if (wabs)
-                {
-                    yield wabs.refreshTokens()
-                }
-                else
-                {
-                    yield oauth.revokeTokens(wso2OauthToken.accessToken)
-                    wso2OauthToken = null
-                }
-                break
-            case 502:
-                yield sleep(300)
-                break
-            default:
-                if (httpStatusCode >= 500)
-                {
-                    yield sleep(100)
-                }
-                else
-                {
-                    //consider these to be okay.
-                    break wso2Retry
-                }
-        }
+      if (originalJWT) {
+        requestObject.headers[BYU_JWT_HEADER_ORIGINAL] = originalJWT
+      }
     }
 
-    if (callback)
-    {
-        callback(err, response)
+    logger(`Making attempt ${attemptsMade} for:`, requestObject)
+    let httpStatusCode
+    try {
+      response = await requestPromise(requestObject)
+      httpStatusCode = response.statusCode || 200
+    } catch (e) {
+      logger('byu-wso2-request error')
+      logger(e)
+      throw e
     }
-    else
-    {
-        if (err)
-        {
-            return new Promise.reject(err)
+    logger(`httpStatusCode: ${httpStatusCode}`)
+
+    switch (httpStatusCode) {
+      case 403:
+      case 401:
+      case 400:
+        logger('Detected unauthorized request.  Revoking token')
+        if (wabs) {
+          await wabs.refreshToken()
+        } else {
+          await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
+          exports.wso2OauthToken = null
         }
-        return new Promise.resolve(response)
+        break
+      case 502:
+        await sleep(300)
+        break
+      default:
+        if (httpStatusCode >= 500) {
+          await sleep(100)
+        } else {
+          // Consider these to be okay
+          return response
+        }
     }
-})
+  }
+  return response
+}
+
+function sleep (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
