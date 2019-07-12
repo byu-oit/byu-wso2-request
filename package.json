@@ -28,7 +28,7 @@
     "node": ">=8"
   },
   "scripts": {
-    "test": "npx nyc --reporter=lcov --reporter=text-summary ./node_modules/.bin/mocha --recursive --exit",
+    "test": "npx nyc --reporter=lcov --reporter=text-summary mocha --recursive --exit",
     "posttest": "npx standard"
   },
   "repository": {
