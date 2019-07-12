@@ -39,7 +39,7 @@ exports.oauthHttpHeaderValue = function oauthHttpHeaderValue (token) {
 }
 
 exports.actingForHeader = function actingForHeader (requestObject, actingForNetId) {
-  if (!requestObject.hasOwnProperty('headers')) {
+  if (!Object.prototype.hasOwnProperty.call(requestObject, 'headers')) {
     requestObject.headers = {}
   }
   requestObject.headers['acting-for'] = actingForNetId
