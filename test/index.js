@@ -63,6 +63,33 @@ describe('setOauthSettings', function () {
     expect(byuWabsOauthStub).to.be.calledWith('someOtherKey', 'someOtherSecret')
   })
 
+  describe('(legacy) uses user-provided clientKey and clientSecret when provided as an object', function () {
+    it('uses the correct clientKey and clientSecret', async () => {
+      // These will get restored after the test
+      process.env.WSO2_CLIENT_KEY = 'someKey'
+      process.env.WSO2_CLIENT_SECRET = 'someSecret'
+
+      await byuWso2Request.setOauthSettings({ clientKey: 'someOtherKey', clientSecret: 'someOtherSecret' })
+      expect(byuWabsOauthStub).to.be.calledWith('someOtherKey', 'someOtherSecret')
+    })
+
+    it('doesn\'t reject if wellKnownUrl is provided as part of the object', async () => {
+      await byuWso2Request.setOauthSettings({ clientKey: 'someOtherKey', clientSecret: 'someOtherSecret', wellKnownUrl: 'blah' })
+      expect(byuWabsOauthStub).to.be.calledWith('someOtherKey', 'someOtherSecret')
+      // There's an implicit we-expect-this-not-to-reject
+    })
+
+    it('rejects if a second parameter is provided when the first parameter is an options object', async () => {
+      const someGarbageVariable = true
+      try {
+        await byuWso2Request.setOauthSettings({ clientKey: 'someOtherKey', clientSecret: 'someOtherSecret' }, someGarbageVariable)
+      } catch (e) {
+        expect(e.message).to.equal('Unexpected second parameter - If clientKey and clientSecret are provided as part of an object, only one parameter is expected')
+      }
+      expect(byuWabsOauthStub.callCount).to.equal(0)
+    })
+  })
+
   it('sets exports.oauth to a new instance of byu-wabs-oauth (asynchronously)', async () => {
     const fakeOauthObject = {}
     byuWabsOauthStub.resolves(fakeOauthObject)

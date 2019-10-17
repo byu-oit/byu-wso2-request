@@ -26,6 +26,15 @@ exports.wso2OauthToken = null
 exports.expiresTimeStamp = null
 
 exports.setOauthSettings = async function setOauthSettings (clientKey, clientSecret) {
+  // Allow the use of an object { clientKey, clientSecret } as first parameter
+  if (clientKey instanceof Object) {
+    if (clientSecret) {
+      throw Error('Unexpected second parameter - If clientKey and clientSecret are provided as part of an object, only one parameter is expected')
+    }
+    ({ clientKey, clientSecret } = clientKey)
+  }
+
+  // Try using environment variables if clientKey/clientSecret not provided
   if (!clientKey) clientKey = process.env.WSO2_CLIENT_KEY
   if (!clientSecret) clientSecret = process.env.WSO2_CLIENT_SECRET
 
