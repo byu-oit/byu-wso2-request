@@ -111,7 +111,6 @@ exports.request = async function request (settings, originalJWT) {
     } catch (e) {
       logger('byu-wso2-request error')
       logger(e)
-      throw e
     }
     logger(`httpStatusCode: ${httpStatusCode}`)
 
