@@ -82,6 +82,7 @@ exports.request = async function request (settings, originalJWT) {
   }
 
   let response
+  let responseError
   let attemptsMade = 0
   const maxAttempts = 3
   while (attemptsMade < maxAttempts) {
@@ -111,6 +112,8 @@ exports.request = async function request (settings, originalJWT) {
     } catch (e) {
       logger('byu-wso2-request error')
       logger(e)
+      httpStatusCode = e.statusCodeError || e.statusCode || 401
+      responseError = e
     }
     logger(`httpStatusCode: ${httpStatusCode}`)
 
@@ -134,9 +137,23 @@ exports.request = async function request (settings, originalJWT) {
           await sleep(100)
         } else {
           // Consider these to be okay
+          if (response) {
+            response.statusCode = response.statusCode || 500
+            return response
+          }
+          if (requestObject.simple) {
+            throw (responseError)
+          }
           return response
         }
     }
+  }
+  if (response) {
+    response.statusCode = response.statusCode || 500
+    return response
+  }
+  if (requestObject.simple) {
+    throw (responseError)
   }
   return response
 }
