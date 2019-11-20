@@ -291,7 +291,9 @@ describe('request', function () {
         await byuWso2Request.request(requestObject)
       } catch (e) {
         expect(e).to.equal(someError)
+        return
       }
+      throw Error('Should not get here')
     })
   })
 
