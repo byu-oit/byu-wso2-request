@@ -1,6 +1,6 @@
 {
   "name": "byu-wso2-request",
-  "version": "2.3.6",
+  "version": "3.0.0",
   "description": "Utility for making a server to server request using wso2 authentication",
   "main": "index.js",
   "directories": {
@@ -20,12 +20,12 @@
     "mocha": "^7.0.1",
     "nyc": "^15.0.0",
     "proxyquire": "^2.1.1",
-    "sinon": "^8.0.1",
+    "sinon": "^9.0.1",
     "sinon-chai": "^3.4.0",
     "standard": "^14.3.1"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "scripts": {
     "test": "npx nyc --reporter=lcov --reporter=text-summary mocha --recursive --exit",

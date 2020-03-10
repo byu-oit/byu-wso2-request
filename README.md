@@ -1,17 +1,18 @@
 # ![BYU logo](https://www.hscripts.com/freeimages/logos/university-logos/byu/byu-logo-clipart-128.gif) byu-wso2-request
 Utility for making a server to server request using wso2 authentication
 
-**Requires Node 8**
+**Requires Node 10+**
 
 #### Installation
 ```npm i --save byu-wso2-request```
 
 #### Migration from v1 to v2.1+
-* Update to Node 8 or above (Node 6 support has been dropped)
-* Use promise paradigm instead of callback paradigm for `request` (callback paradigm support has been dropped)
-* _Recommended, but not required:_ Pass in `clientKey` and `clientSecret` as two parameters to `setOauthSettings` instead of as part of an object (`wellKnownUrl` is now baked into the `byu-wabs-oauth` dependency)
+* Update to Node 8 or above
+* Use promises instead of callbacks for `request`
 
-Otherwise, v2 functionality should be identical to v1
+#### Migration from v2 to v3
+* Update to Node 10 or above
+* If you want the `statusCode` property added to responses, make the requests with the `resolveWithFullResponse` option set to `true` (See: [#30](https://github.com/byu-oit/byu-wso2-request/pull/30))
 
 #### Usage
 
