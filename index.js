@@ -138,7 +138,6 @@ exports.request = async function request (settings, originalJWT) {
         } else {
           // Consider these to be okay
           if (response) {
-            response.statusCode = response.statusCode || 500
             return response
           }
           if (requestObject.simple) {
@@ -149,7 +148,6 @@ exports.request = async function request (settings, originalJWT) {
     }
   }
   if (response) {
-    response.statusCode = response.statusCode || 500
     return response
   }
   if (requestObject.simple) {
