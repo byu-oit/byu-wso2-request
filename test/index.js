@@ -574,4 +574,70 @@ describe('request', function () {
       expect(secondCallTime).to.be.above(firstCallTime + 99)
     })
   })
+
+  describe('resolves with what request-promise resolves', function () {
+    beforeEach(() => {
+      byuWabsOauthStub.resolves({ getClientGrantToken: getClientGrantTokenStub, revokeToken: revokeTokenStub })
+    })
+
+    const expectedBody = { someData: true }
+    const expectedFull200 = {
+      statusCode: 200,
+      body: expectedBody
+    }
+    const expectedFull400 = {
+      statusCode: 400,
+      body: expectedBody
+    }
+
+    it('on a 200 when resolveWithFullResponse=false', async () => {
+      requestPromiseStub.resolves(expectedBody)
+      const requestObject = {
+        url: 'https://api.byu.edu:443/echo/v1/echo/test',
+        resolveWithFullResponse: false
+      }
+      const actual = await byuWso2Request.request(requestObject)
+      expect(actual).to.deep.equal({ someData: true })
+    })
+
+    it('on a 200 when resolveWithFullResponse=true', async () => {
+      requestPromiseStub.resolves(expectedFull200)
+      const requestObject = {
+        url: 'https://api.byu.edu:443/echo/v1/echo/test',
+        resolveWithFullResponse: false
+      }
+      const actual = await byuWso2Request.request(requestObject)
+      expect(actual).to.deep.equal({
+        statusCode: 200,
+        body: { someData: true }
+      })
+    })
+
+    // simple=false is needed because otherwise 400s would cause request-promise to reject
+    it('on a 400 when simple=false and resolveWithFullResponse=false', async () => {
+      requestPromiseStub.resolves(expectedBody)
+      const requestObject = {
+        url: 'https://api.byu.edu:443/echo/v1/echo/test',
+        simple: false,
+        resolveWithFullResponse: false
+      }
+      const actual = await byuWso2Request.request(requestObject)
+      expect(actual).to.deep.equal({ someData: true })
+    })
+
+    // simple=false is needed because otherwise 400s would cause request-promise to reject
+    it('on a 400 when simple=false and resolveWithFullResponse=true', async () => {
+      requestPromiseStub.resolves(expectedFull400)
+      const requestObject = {
+        url: 'https://api.byu.edu:443/echo/v1/echo/test',
+        simple: false,
+        resolveWithFullResponse: true
+      }
+      const actual = await byuWso2Request.request(requestObject)
+      expect(actual).to.deep.equal({
+        statusCode: 400,
+        body: { someData: true }
+      })
+    })
+  })
 })
