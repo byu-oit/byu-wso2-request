@@ -604,7 +604,7 @@ describe('request', function () {
       requestPromiseStub.resolves(expectedFull200)
       const requestObject = {
         url: 'https://api.byu.edu:443/echo/v1/echo/test',
-        resolveWithFullResponse: false
+        resolveWithFullResponse: true
       }
       const actual = await byuWso2Request.request(requestObject)
       expect(actual).to.deep.equal({
