@@ -126,6 +126,24 @@ describe('actingForHeader', function () {
   })
 })
 
+describe('getCurrentToken', function () {
+  it('returns the current token', () => {
+    byuWso2Request.wso2OauthToken = {
+      accessToken: 'fakeaccesstoken'
+    }
+
+    const actual = byuWso2Request.getCurrentToken()
+    expect(actual).to.equal('fakeaccesstoken')
+  })
+
+  it('returns null when there is no current token', () => {
+    byuWso2Request.wso2OauthToken = null
+
+    const actual = byuWso2Request.getCurrentToken()
+    expect(actual).to.equal(null)
+  })
+})
+
 describe('request', function () {
   let byuWso2Request
   let byuWabsOauthStub

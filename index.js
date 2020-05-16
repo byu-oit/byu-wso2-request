@@ -54,6 +54,10 @@ exports.actingForHeader = function actingForHeader (requestObject, actingForNetI
   requestObject.headers['acting-for'] = actingForNetId
 }
 
+exports.getCurrentToken = function getCurrentToken () {
+  return exports.wso2OauthToken && exports.wso2OauthToken.accessToken
+}
+
 exports.request = async function request (settings, originalJWT) {
   if (exports.oauth === null) await exports.setOauthSettings() // Try using default values (from environment variables) - This gives a more helpful error if it rejects
 
