@@ -128,10 +128,10 @@ exports.request = async function request (settings, originalJWT) {
         logger('Detected unauthorized request.  Revoking token')
         if (wabs) {
           await wabs.refreshToken()
-        } else {
+        } else if (exports.wso2OauthToken) {
           await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
           exports.wso2OauthToken = null
-        }
+        } // Otherwise, another caller has already revoked it
         break
       case 502:
         await sleep(300)
