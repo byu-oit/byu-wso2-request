@@ -479,7 +479,7 @@ describe('request', function () {
       await byuWso2Request.request(requestObject)
 
       expect(requestPromiseStub.callCount).to.be.above(1)
-      expect(secondCallTime).to.be.above(firstCallTime + 299)
+      expect(secondCallTime).to.be.at.least(firstCallTime + 299)
     })
 
     it('on a >=500 status code (other than 502), after waiting 100ms', async () => {
@@ -501,7 +501,7 @@ describe('request', function () {
       await byuWso2Request.request(requestObject)
 
       expect(requestPromiseStub.callCount).to.be.above(1)
-      expect(secondCallTime).to.be.above(firstCallTime + 99)
+      expect(secondCallTime).to.be.at.least(firstCallTime + 99)
     })
   })
 
@@ -567,7 +567,7 @@ describe('request', function () {
       await byuWso2Request.request(requestObject)
 
       expect(requestPromiseStub.callCount).to.be.above(1)
-      expect(secondCallTime).to.be.above(firstCallTime + 299)
+      expect(secondCallTime).to.be.at.least(firstCallTime + 299)
     })
 
     it('on a >=500 status code (other than 502), after waiting 100ms', async () => {
@@ -589,7 +589,7 @@ describe('request', function () {
       await byuWso2Request.request(requestObject)
 
       expect(requestPromiseStub.callCount).to.be.above(1)
-      expect(secondCallTime).to.be.above(firstCallTime + 99)
+      expect(secondCallTime).to.be.at.least(firstCallTime + 99)
     })
   })
 
