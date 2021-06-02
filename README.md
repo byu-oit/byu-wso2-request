@@ -1,6 +1,8 @@
 # ![BYU logo](https://www.hscripts.com/freeimages/logos/university-logos/byu/byu-logo-clipart-128.gif) byu-wso2-request
 Utility for making a server to server request using wso2 authentication
 
+[![codecov](https://codecov.io/gh/byu-oit/byu-wso2-request/branch/main/graph/badge.svg?token=nzJwvKNRGk)](https://codecov.io/gh/byu-oit/byu-wso2-request)
+
 **Requires Node 10+**
 
 #### Installation

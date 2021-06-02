@@ -29,7 +29,7 @@
   },
   "scripts": {
     "test": "npx nyc --reporter=lcov --reporter=text-summary mocha --recursive --exit",
-    "posttest": "npx standard"
+    "lint": "npx standard"
   },
   "repository": {
     "type": "git",
