@@ -3,7 +3,7 @@ Utility for making a server to server request using wso2 authentication
 
 [![codecov](https://codecov.io/gh/byu-oit/byu-wso2-request/branch/main/graph/badge.svg?token=nzJwvKNRGk)](https://codecov.io/gh/byu-oit/byu-wso2-request)
 
-**Requires Node 10+**
+**Requires Node 12+**
 
 #### Installation
 ```npm i --save byu-wso2-request```
@@ -15,6 +15,9 @@ Utility for making a server to server request using wso2 authentication
 #### Migration from v2 to v3
 * Update to Node 10 or above
 * If you want the `statusCode` property added to responses, make the requests with the `resolveWithFullResponse` option set to `true` (See: [#30](https://github.com/byu-oit/byu-wso2-request/pull/30))
+
+#### Migration from v3 to v4
+* Update to Node 12 or above
 
 #### Usage
 

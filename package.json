@@ -25,7 +25,7 @@
     "standard": "^16.0.3"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
     "test": "npx nyc --reporter=lcov --reporter=text-summary mocha --recursive --exit",
