@@ -26,7 +26,7 @@ exports.wso2OauthToken = null
 exports.expiresTimeStamp = null
 
 exports.setOauthSettings = async function setOauthSettings (clientKey, clientSecret) {
-console.log(`Inside setOauthSettings`)
+  //console.log(`Inside setOauthSettings`)
   // Allow the use of an object { clientKey, clientSecret } as first parameter
   if (clientKey instanceof Object) {
     if (clientSecret) {
@@ -71,7 +71,7 @@ exports.request = async function request (settings, originalJWT) {
       Accept: 'application/json'
     }
   }
-console.log(`Inside byu-wso2-request`)
+  //console.log(`Inside byu-wso2-request`)
   const requestObject = Object.assign(defaultSettings, settings)
 
   const wabs = requestObject.wabs
