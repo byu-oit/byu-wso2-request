@@ -26,6 +26,7 @@ exports.wso2OauthToken = null
 exports.expiresTimeStamp = null
 
 exports.setOauthSettings = async function setOauthSettings (clientKey, clientSecret) {
+console.log(`Inside setOauthSettings`)
   // Allow the use of an object { clientKey, clientSecret } as first parameter
   if (clientKey instanceof Object) {
     if (clientSecret) {
@@ -70,6 +71,7 @@ exports.request = async function request (settings, originalJWT) {
       Accept: 'application/json'
     }
   }
+console.log(`Inside byu-wso2-request`)
   const requestObject = Object.assign(defaultSettings, settings)
 
   const wabs = requestObject.wabs
@@ -121,23 +123,32 @@ exports.request = async function request (settings, originalJWT) {
     }
     logger(`httpStatusCode: ${httpStatusCode}`)
 
+    async function doRevoke()
+    {
+      if (wabs) {
+        await wabs.refreshToken()
+      } else if (exports.wso2OauthToken) {
+        await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
+        exports.wso2OauthToken = null
+      } // Otherwise, another caller has already revoked it
+    }
+
     switch (httpStatusCode) {
       case 403:
       case 401:
       case 400:
         logger('Detected unauthorized request.  Revoking token')
-        if (wabs) {
-          await wabs.refreshToken()
-        } else if (exports.wso2OauthToken) {
-          await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
-          exports.wso2OauthToken = null
-        } // Otherwise, another caller has already revoked it
+        await doRevoke()
         break
       case 502:
         await sleep(300)
         break
       default:
         if (httpStatusCode >= 500) {
+          if(/\<ams:code\>900901\<\/ams:code\>\<ams:message>Invalid Credentials\<\/ams:message\>/.test(`${response}`))
+          {
+            await doRevoke()
+          }
           await sleep(100)
         } else {
           // Consider these to be okay
@@ -161,5 +172,5 @@ exports.request = async function request (settings, originalJWT) {
 }
 
 function sleep (ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise(function sleepyPromise(resolve){setTimeout(resolve, ms)})
 }
