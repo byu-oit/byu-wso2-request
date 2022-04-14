@@ -144,7 +144,7 @@ exports.request = async function request (settings, originalJWT) {
         break
       default:
         if (httpStatusCode >= 500) {
-          if (/\<ams:code\>900901\<\/ams:code\>\<ams:message>Invalid Credentials\<\/ams:message\>/.test(`${response}`)) {
+          if (/<ams:code>900901<\/ams:code><ams:message>Invalid Credentials<\/ams:message>/.test(`${response}`)) {
             await doRevoke()
           }
           await sleep(100)
