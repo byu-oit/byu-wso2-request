@@ -26,7 +26,7 @@ exports.wso2OauthToken = null
 exports.expiresTimeStamp = null
 
 exports.setOauthSettings = async function setOauthSettings (clientKey, clientSecret) {
-  //console.log(`Inside setOauthSettings`)
+  // console.log(`Inside setOauthSettings`)
   // Allow the use of an object { clientKey, clientSecret } as first parameter
   if (clientKey instanceof Object) {
     if (clientSecret) {
@@ -71,7 +71,7 @@ exports.request = async function request (settings, originalJWT) {
       Accept: 'application/json'
     }
   }
-  //console.log(`Inside byu-wso2-request`)
+  // console.log(`Inside byu-wso2-request`)
   const requestObject = Object.assign(defaultSettings, settings)
 
   const wabs = requestObject.wabs
@@ -123,8 +123,7 @@ exports.request = async function request (settings, originalJWT) {
     }
     logger(`httpStatusCode: ${httpStatusCode}`)
 
-    async function doRevoke()
-    {
+    async function doRevoke () {
       if (wabs) {
         await wabs.refreshToken()
       } else if (exports.wso2OauthToken) {
@@ -145,8 +144,7 @@ exports.request = async function request (settings, originalJWT) {
         break
       default:
         if (httpStatusCode >= 500) {
-          if(/\<ams:code\>900901\<\/ams:code\>\<ams:message>Invalid Credentials\<\/ams:message\>/.test(`${response}`))
-          {
+          if (/\<ams:code\>900901\<\/ams:code\>\<ams:message>Invalid Credentials\<\/ams:message\>/.test(`${response}`)) {
             await doRevoke()
           }
           await sleep(100)
@@ -172,5 +170,5 @@ exports.request = async function request (settings, originalJWT) {
 }
 
 function sleep (ms) {
-  return new Promise(function sleepyPromise(resolve){setTimeout(resolve, ms)})
+  return new Promise(function sleepyPromise (resolve) { setTimeout(resolve, ms) })
 }
