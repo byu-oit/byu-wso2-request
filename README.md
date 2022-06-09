@@ -25,22 +25,26 @@ Examples:
 const wso2 = require('byu-wso2-request')
 
 (async () => {
+  // Will default to api.byu.edu if host is not passed in
+  const production = process.env.ENVIRONMENT_NAME === 'prd'
+  const host = production ? 'api.byu.edu' : 'api-sandbox.byu.edu'
+
   // Do this once on startup
-  await wso2.setOauthSettings('myClientKey', 'myClientSecret')
+  await wso2.setOauthSettings('myClientKey', 'myClientSecret', { host })
   
   // After that, make all the requests you want
   try {
     // Simple GET request
-    const response1 = await wso2.request({ url: 'https://api.byu.edu/echo/v1/echo/test' })
+    const response1 = await wso2.request({ url: `https://${host}/echo/v1/echo/test` })
 
     // Request using another method
-    const response2 = await wso2.request({ method: 'PUT', url: 'https://api.byu.edu:443/byuapi/students/v2/123456789/enrolled_classes/Summer2019,BIO,100,001', body: { credit_hours: 3 } })
+    const response2 = await wso2.request({ method: 'PUT', url: `https://${host}/byuapi/students/v2/123456789/enrolled_classes/Summer2019,BIO,100,001`, body: { credit_hours: 3 } })
     
     // Request that passes along an original JWT
-    const response3 = await wso2.request({ url: 'https://api.byu.edu/echo/v1/echo/test' }, 'some original jwt to pass along')
+    const response3 = await wso2.request({ url: `https://${host}/echo/v1/echo/test` }, 'some original jwt to pass along')
     
     // Request where you want to know what status code came back (instead of just rejecting if it's not 2XX)
-    const response4 = await wso2.request({ url: 'https://api.byu.edu/echo/v1/echo/test', simple: false, resolveWithFullResponse: true })
+    const response4 = await wso2.request({ url: `https://${host}/echo/v1/echo/test`, simple: false, resolveWithFullResponse: true })
   } catch (e) {
     console.error(e) // Handle errors
   }
