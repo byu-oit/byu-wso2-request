@@ -25,23 +25,24 @@ exports.oauth = null
 exports.wso2OauthToken = null
 exports.expiresTimeStamp = null
 
-exports.setOauthSettings = async function setOauthSettings (clientKey, clientSecret) {
+exports.setOauthSettings = async function setOauthSettings (clientKey, clientSecret, options) {
   // console.log(`Inside setOauthSettings`)
   // Allow the use of an object { clientKey, clientSecret } as first parameter
   if (clientKey instanceof Object) {
     if (clientSecret) {
       throw Error('Unexpected second parameter - If clientKey and clientSecret are provided as part of an object, only one parameter is expected')
     }
-    ({ clientKey, clientSecret } = clientKey)
+    ({ clientKey, clientSecret, ...options } = clientKey)
   }
 
   // Try using environment variables if clientKey/clientSecret not provided
   if (!clientKey) clientKey = process.env.WSO2_CLIENT_KEY
   if (!clientSecret) clientSecret = process.env.WSO2_CLIENT_SECRET
+  const host = options != null ? options.host : process.env.WSO2_HOST
 
   if (!clientKey || !clientSecret) throw Error('Expected clientKey and clientSecret')
 
-  exports.oauth = await byuOauth(clientKey, clientSecret)
+  exports.oauth = await byuOauth(clientKey, clientSecret, { ...host && { host } })
 }
 
 exports.oauthHttpHeaderValue = function oauthHttpHeaderValue (token) {
