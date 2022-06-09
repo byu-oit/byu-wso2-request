@@ -27,6 +27,10 @@
   "engines": {
     "node": ">=10"
   },
+  "files": [
+    "index.d.ts",
+    "index.js"
+  ],
   "scripts": {
     "test": "npx nyc --reporter=lcov --reporter=text-summary mocha --recursive --exit",
     "lint": "npx standard"
