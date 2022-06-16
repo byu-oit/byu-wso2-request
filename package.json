@@ -4,11 +4,11 @@
   "description": "Utility for making a server to server request using wso2 authentication",
   "main": "index.js",
   "directories": {
-    "test": "test"
+    "test": "unit"
   },
   "dependencies": {
-    "byu-jwt": "^3.1.2-2",
-    "byu-wabs-oauth": "^4.0.4-0",
+    "byu-jwt": "^3.1.2",
+    "byu-wabs-oauth": "^4.0.4",
     "debug": "^4.1.1",
     "request": "^2.88.0",
     "request-promise": "^4.2.4"
@@ -32,7 +32,7 @@
     "index.js"
   ],
   "scripts": {
-    "test": "npx nyc --reporter=lcov --reporter=text-summary mocha --recursive --exit",
+    "test": "npx nyc --reporter=lcov --reporter=text-summary mocha unit --recursive --exit",
     "lint": "npx standard"
   },
   "repository": {

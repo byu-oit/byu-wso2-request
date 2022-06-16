@@ -4,7 +4,7 @@ const expect = require('chai').expect
 const wso2 = require('../index')
 
 // Do not run these tests in the release pipeline
-describe.skip('Integration Tests', () => {
+describe('Integration Tests', () => {
   const provider = new URL(process.env.HOST)
   const clientKey = process.env.CLIENT_KEY
   const clientSecret = process.env.CLIENT_SECRET
