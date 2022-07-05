@@ -28,6 +28,9 @@ const wso2 = require('byu-wso2-request')
   // Will default to api.byu.edu if host is not passed in
   const production = process.env.ENVIRONMENT_NAME === 'prd'
   const host = production ? 'api.byu.edu' : 'api-sandbox.byu.edu'
+  
+  // Alternatively, you can set the host in the environment variables
+  // process.env.WSO2_HOST = 'api.byu.edu'
 
   // Do this once on startup
   await wso2.setOauthSettings('myClientKey', 'myClientSecret', { host })

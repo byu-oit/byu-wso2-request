@@ -38,7 +38,7 @@ exports.setOauthSettings = async function setOauthSettings (clientKey, clientSec
   // Try using environment variables if clientKey/clientSecret not provided
   if (!clientKey) clientKey = process.env.WSO2_CLIENT_KEY
   if (!clientSecret) clientSecret = process.env.WSO2_CLIENT_SECRET
-  const host = options != null ? options.host : process.env.WSO2_HOST
+  const host = options != null ? options.host : process.env.WSO2_HOST || process.env.BYUAPI_DOMAIN
 
   if (!clientKey || !clientSecret) throw Error('Expected clientKey and clientSecret')
 
