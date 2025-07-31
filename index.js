@@ -115,6 +115,7 @@ exports.request = async function request (settings, originalJWT) {
     logger(`Making attempt ${attemptsMade} for:`, requestObject)
     let httpStatusCode
     try {
+      responseError = null
       response = await requestPromise(requestObject)
       httpStatusCode = response.statusCode || 200
     } catch (e) {
@@ -138,7 +139,9 @@ exports.request = async function request (settings, originalJWT) {
     switch (httpStatusCode) {
       case 401:
         logger('Detected unauthorized request.  Revoking token')
-        await doRevoke()
+        if (responseError && responseError.message && /inactive token/i.test(`${responseError.message}`)) {
+          await doRevoke()
+        }
         break
       case 502:
         await sleep(300)

@@ -339,7 +339,7 @@ describe('request', function () {
     it('by using wabs to refresh tokens', async () => {
       // This is a situation where the token should get revoked and the call should be retried
       // ... but in this case, we have a 'wabs' property on our requestObject
-      requestPromiseStub.onFirstCall().resolves({ statusCode: 401 }).onSecondCall().resolves({})
+      requestPromiseStub.onFirstCall().rejects(new StatusCodeError(401, { error: 'Inactive Token' }, {}, {})).onSecondCall().resolves({})
       const wabsRefreshTokenStub = sinon.stub()
       const requestObject = {
         url: 'https://api.byu.edu:443/echo/v1/echo/test',
