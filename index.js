@@ -82,7 +82,8 @@ exports.request = async function request (settings, originalJWT) {
       const now = new Date()
       if (now > exports.expiresTimeStamp) {
         logger('Access token has expired - Revoking token')
-        await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
+        // TYK: no longer necessary to proactively revoke
+        // await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
         exports.wso2OauthToken = null
       }
     }
@@ -128,15 +129,14 @@ exports.request = async function request (settings, originalJWT) {
       if (wabs) {
         await wabs.refreshToken()
       } else if (exports.wso2OauthToken) {
-        await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
+        // TYK: no longer necessary to proactively revoke
+        // await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
         exports.wso2OauthToken = null
       } // Otherwise, another caller has already revoked it
     }
 
     switch (httpStatusCode) {
-      case 403:
       case 401:
-      case 400:
         logger('Detected unauthorized request.  Revoking token')
         await doRevoke()
         break
