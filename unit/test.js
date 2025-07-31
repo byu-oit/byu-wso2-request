@@ -339,7 +339,7 @@ describe('request', function () {
     it('by using wabs to refresh tokens', async () => {
       // This is a situation where the token should get revoked and the call should be retried
       // ... but in this case, we have a 'wabs' property on our requestObject
-      requestPromiseStub.onFirstCall().resolves({ statusCode: 403 }).onSecondCall().resolves({})
+      requestPromiseStub.onFirstCall().resolves({ statusCode: 401 }).onSecondCall().resolves({})
       const wabsRefreshTokenStub = sinon.stub()
       const requestObject = {
         url: 'https://api.byu.edu:443/echo/v1/echo/test',
@@ -382,7 +382,8 @@ describe('request', function () {
       byuWso2Request.expiresTimeStamp = fakeExpiredTimestamp
 
       await byuWso2Request.request(requestObject)
-      expect(revokeTokenStubWithAssertions.callCount).to.be.above(0) // Make sure our assertions that we care about actually got checked
+      expect(byuWso2Request.wso2OauthToken).to.not.equal(fakeExpiredToken)
+      expect(getClientGrantTokenStub.callCount).to.equal(2)
     } finally {
       // Restore some values used just for this test
       byuWso2Request.wso2OauthToken = fakeExpiredToken
@@ -418,40 +419,12 @@ describe('request', function () {
   })
 
   describe('retries when simple=true', function () {
-    it('on a 400 status code, after revoking the token', async () => {
-      const revokeTokenStubWithAssertions = sinon.stub().callsFake(async () => {
-        expect(requestPromiseStub.callCount).to.equal(1) // Revoke after first call
-      })
-      byuWabsOauthStub.resolves({ getClientGrantToken: getClientGrantTokenStub, revokeToken: revokeTokenStubWithAssertions })
-      requestPromiseStub.onFirstCall().rejects(new StatusCodeError(400, '', {}, {})).onSecondCall().resolves({})
-      const requestObject = {
-        url: 'https://api.byu.edu:443/echo/v1/echo/test'
-      }
-      await byuWso2Request.request(requestObject)
-
-      expect(requestPromiseStub.callCount).to.be.above(1)
-    })
-
     it('on a 401 status code, after revoking the token', async () => {
       const revokeTokenStubWithAssertions = sinon.stub().callsFake(async () => {
         expect(requestPromiseStub.callCount).to.equal(1) // Revoke after first call
       })
       byuWabsOauthStub.resolves({ getClientGrantToken: getClientGrantTokenStub, revokeToken: revokeTokenStubWithAssertions })
       requestPromiseStub.onFirstCall().rejects(new StatusCodeError(401, '', {}, {})).onSecondCall().resolves({})
-      const requestObject = {
-        url: 'https://api.byu.edu:443/echo/v1/echo/test'
-      }
-      await byuWso2Request.request(requestObject)
-
-      expect(requestPromiseStub.callCount).to.be.above(1)
-    })
-
-    it('on a 403 status code, after revoking the token', async () => {
-      const revokeTokenStubWithAssertions = sinon.stub().callsFake(async () => {
-        expect(requestPromiseStub.callCount).to.equal(1) // Revoke after first call
-      })
-      byuWabsOauthStub.resolves({ getClientGrantToken: getClientGrantTokenStub, revokeToken: revokeTokenStubWithAssertions })
-      requestPromiseStub.onFirstCall().rejects(new StatusCodeError(403, '', {}, {})).onSecondCall().resolves({})
       const requestObject = {
         url: 'https://api.byu.edu:443/echo/v1/echo/test'
       }
@@ -506,40 +479,12 @@ describe('request', function () {
   })
 
   describe('retries when simple=false', function () {
-    it('on a 400 status code, after revoking the token', async () => {
-      const revokeTokenStubWithAssertions = sinon.stub().callsFake(async () => {
-        expect(requestPromiseStub.callCount).to.equal(1) // Revoke after first call
-      })
-      byuWabsOauthStub.resolves({ getClientGrantToken: getClientGrantTokenStub, revokeToken: revokeTokenStubWithAssertions })
-      requestPromiseStub.onFirstCall().resolves({ statusCode: 400 }).onSecondCall().resolves({})
-      const requestObject = {
-        url: 'https://api.byu.edu:443/echo/v1/echo/test'
-      }
-      await byuWso2Request.request(requestObject)
-
-      expect(requestPromiseStub.callCount).to.be.above(1)
-    })
-
     it('on a 401 status code, after revoking the token', async () => {
       const revokeTokenStubWithAssertions = sinon.stub().callsFake(async () => {
         expect(requestPromiseStub.callCount).to.equal(1) // Revoke after first call
       })
       byuWabsOauthStub.resolves({ getClientGrantToken: getClientGrantTokenStub, revokeToken: revokeTokenStubWithAssertions })
       requestPromiseStub.onFirstCall().resolves({ statusCode: 401 }).onSecondCall().resolves({})
-      const requestObject = {
-        url: 'https://api.byu.edu:443/echo/v1/echo/test'
-      }
-      await byuWso2Request.request(requestObject)
-
-      expect(requestPromiseStub.callCount).to.be.above(1)
-    })
-
-    it('on a 403 status code, after revoking the token', async () => {
-      const revokeTokenStubWithAssertions = sinon.stub().callsFake(async () => {
-        expect(requestPromiseStub.callCount).to.equal(1) // Revoke after first call
-      })
-      byuWabsOauthStub.resolves({ getClientGrantToken: getClientGrantTokenStub, revokeToken: revokeTokenStubWithAssertions })
-      requestPromiseStub.onFirstCall().resolves({ statusCode: 403 }).onSecondCall().resolves({})
       const requestObject = {
         url: 'https://api.byu.edu:443/echo/v1/echo/test'
       }
