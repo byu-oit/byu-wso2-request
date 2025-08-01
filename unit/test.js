@@ -391,6 +391,28 @@ describe('request', function () {
     }
   })
 
+  it('only has one in-flight get-new-token request at a time', async () => {
+    byuWabsOauthStub.resolves({
+      getClientGrantToken: getClientGrantTokenStub,
+      revokeToken: revokeTokenStub
+    })
+    requestPromiseStub.resolves({})
+
+    const requestObject = {
+      url: 'https://api.byu.edu:443/echo/v1/echo/test'
+    }
+
+    // Make multiple concurrent requests
+    await Promise.all([byuWso2Request.request(requestObject), byuWso2Request.request(requestObject), byuWso2Request.request(requestObject)])
+
+    expect(getClientGrantTokenStub.callCount).to.equal(1) // Should be only one call, even though three requests went through
+
+    byuWso2Request.wso2OauthToken = null
+    await Promise.all([byuWso2Request.request(requestObject), byuWso2Request.request(requestObject), byuWso2Request.request(requestObject)])
+
+    expect(getClientGrantTokenStub.callCount).to.equal(2)
+  })
+
   it('tries to get a new token if no current valid token exists before making a call (or if the token was revoked)', async () => {
     const getClientGrantTokenStubWithAssertion = sinon.stub().callsFake(async () => {
       expect(requestPromiseStub.callCount).to.equal(0) // Get token before any requests are made
@@ -424,12 +446,14 @@ describe('request', function () {
         expect(requestPromiseStub.callCount).to.equal(1) // Revoke after first call
       })
       byuWabsOauthStub.resolves({ getClientGrantToken: getClientGrantTokenStub, revokeToken: revokeTokenStubWithAssertions })
-      requestPromiseStub.onFirstCall().rejects(new StatusCodeError(401, '', {}, {})).onSecondCall().resolves({})
+      requestPromiseStub.onFirstCall().rejects(new StatusCodeError(401, { error: 'Inactive Token' }, {}, {})).onSecondCall().resolves({})
       const requestObject = {
         url: 'https://api.byu.edu:443/echo/v1/echo/test'
       }
+      expect(getClientGrantTokenStub.callCount).to.equal(0)
       await byuWso2Request.request(requestObject)
 
+      expect(getClientGrantTokenStub.callCount).to.equal(2)
       expect(requestPromiseStub.callCount).to.be.above(1)
     })
 

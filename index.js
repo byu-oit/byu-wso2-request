@@ -24,6 +24,17 @@ const { BYU_JWT_HEADER_ORIGINAL } = require('byu-jwt')
 exports.oauth = null
 exports.wso2OauthToken = null
 exports.expiresTimeStamp = null
+exports.inFlightCCTokenRequest = null
+
+function getNewTokenSingleton () {
+  if (exports.inFlightCCTokenRequest === null) {
+    exports.inFlightCCTokenRequest = exports.oauth.getClientGrantToken()
+      .then(token => { exports.wso2OauthToken = token })
+      .finally(() => { exports.inFlightCCTokenRequest = null })
+  }
+
+  return exports.inFlightCCTokenRequest
+}
 
 exports.setOauthSettings = async function setOauthSettings (clientKey, clientSecret, options) {
   // console.log(`Inside setOauthSettings`)
@@ -95,16 +106,18 @@ exports.request = async function request (settings, originalJWT) {
   const maxAttempts = 3
   while (attemptsMade < maxAttempts) {
     attemptsMade++
+    let currentAccessToken
 
     if (wabs) {
       requestObject.headers.Authorization = exports.oauthHttpHeaderValue(wabs.auth)
     } else {
       if (!exports.wso2OauthToken) {
-        exports.wso2OauthToken = await exports.oauth.getClientGrantToken()
+        await getNewTokenSingleton()
         const now = new Date()
         exports.expiresTimeStamp = new Date(now.getTime() + (exports.wso2OauthToken.expiresIn * 1000))
         logger(`Access Token ${exports.wso2OauthToken.accessToken} will expire: ${exports.expiresTimeStamp} ${exports.wso2OauthToken.expiresIn} seconds from: ${now}`)
       }
+      currentAccessToken = exports.wso2OauthToken.accessToken
       requestObject.headers.Authorization = exports.oauthHttpHeaderValue(exports.wso2OauthToken)
 
       if (originalJWT) {
@@ -126,10 +139,10 @@ exports.request = async function request (settings, originalJWT) {
     }
     logger(`httpStatusCode: ${httpStatusCode}`)
 
-    async function doRevoke () {
+    async function doRevoke (usedToken) {
       if (wabs) {
         await wabs.refreshToken()
-      } else if (exports.wso2OauthToken) {
+      } else if (exports.wso2OauthToken && exports.wso2OauthToken.accessToken === usedToken) { // Make sure we're deleting the token that was actually used in the call
         // TYK: no longer necessary to proactively revoke
         // await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
         exports.wso2OauthToken = null
@@ -140,7 +153,7 @@ exports.request = async function request (settings, originalJWT) {
       case 401:
         logger('Detected unauthorized request.  Revoking token')
         if (responseError && responseError.message && /inactive token/i.test(`${responseError.message}`)) {
-          await doRevoke()
+          await doRevoke(currentAccessToken)
         }
         break
       case 502:
