@@ -25,6 +25,8 @@ exports.oauth = null
 exports.wso2OauthToken = null
 exports.expiresTimeStamp = null
 
+let forceRefresh = false
+
 exports.setOauthSettings = async function setOauthSettings (clientKey, clientSecret, options) {
   // console.log(`Inside setOauthSettings`)
   // Allow the use of an object { clientKey, clientSecret } as first parameter
@@ -84,7 +86,7 @@ exports.request = async function request (settings, originalJWT) {
         logger('Access token has expired - Revoking token')
         // TYK: no longer necessary to proactively revoke
         // await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
-        exports.wso2OauthToken = null
+        forceRefresh = true
       }
     }
   }
@@ -99,8 +101,9 @@ exports.request = async function request (settings, originalJWT) {
     if (wabs) {
       requestObject.headers.Authorization = exports.oauthHttpHeaderValue(wabs.auth)
     } else {
-      if (!exports.wso2OauthToken) {
+      if (!exports.wso2OauthToken || forceRefresh) {
         exports.wso2OauthToken = await exports.oauth.getClientGrantToken()
+        forceRefresh = false
         const now = new Date()
         exports.expiresTimeStamp = new Date(now.getTime() + (exports.wso2OauthToken.expiresIn * 1000))
         logger(`Access Token ${exports.wso2OauthToken.accessToken} will expire: ${exports.expiresTimeStamp} ${exports.wso2OauthToken.expiresIn} seconds from: ${now}`)
@@ -131,7 +134,7 @@ exports.request = async function request (settings, originalJWT) {
       } else if (exports.wso2OauthToken) {
         // TYK: no longer necessary to proactively revoke
         // await exports.oauth.revokeToken(exports.wso2OauthToken.accessToken)
-        exports.wso2OauthToken = null
+        forceRefresh = true
       } // Otherwise, another caller has already revoked it
     }
 
