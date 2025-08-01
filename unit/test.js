@@ -405,11 +405,13 @@ describe('request', function () {
     // Make multiple concurrent requests
     await Promise.all([byuWso2Request.request(requestObject), byuWso2Request.request(requestObject), byuWso2Request.request(requestObject)])
 
+    expect(requestPromiseStub.callCount).to.equal(3)
     expect(getClientGrantTokenStub.callCount).to.equal(1) // Should be only one call, even though three requests went through
 
     byuWso2Request.wso2OauthToken = null
     await Promise.all([byuWso2Request.request(requestObject), byuWso2Request.request(requestObject), byuWso2Request.request(requestObject)])
 
+    expect(requestPromiseStub.callCount).to.equal(6)
     expect(getClientGrantTokenStub.callCount).to.equal(2)
   })
 
