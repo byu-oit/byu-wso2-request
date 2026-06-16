@@ -14,6 +14,53 @@ Utility for making a server to server request using wso2 authentication
 >
 > Existing projects are encouraged to migrate.
 
+#### Migration to `@byu-oit-sdk/client-byu`
+
+`@byu-oit-sdk/client-byu` is the supported replacement for this package in the
+[BYU OIT SDK JavaScript repo](https://github.com/byu-oit-sdk/javascript/tree/main/packages/client-byu).
+
+1. Replace the dependency:
+
+```sh
+npm uninstall byu-wso2-request
+npm install @byu-oit-sdk/client-byu
+```
+
+2. Rename configuration:
+
+| `byu-wso2-request` | `@byu-oit-sdk/client-byu` |
+| --- | --- |
+| `WSO2_CLIENT_KEY` | `BYU_OIT_CLIENT_ID` |
+| `WSO2_CLIENT_SECRET` | `BYU_OIT_CLIENT_SECRET` |
+| `WSO2_HOST` or `BYUAPI_DOMAIN` | `ENVIRONMENT_NAME=prd`, `sandbox`, or `dev` |
+
+3. Replace `setOauthSettings` with a reusable client instance:
+
+```js
+// Before
+const wso2 = require('byu-wso2-request')
+await wso2.setOauthSettings('myClientKey', 'myClientSecret', { host: 'api.byu.edu' })
+const response = await wso2.request({ url: 'https://api.byu.edu/echo/v1/echo/test' })
+
+// After
+import { Client } from '@byu-oit-sdk/client-byu'
+
+const client = new Client()
+const response = await client.request({ url: '/echo/v1/echo/test' })
+```
+
+4. Keep request options on the same object. For example, `method`, `headers`, `body`, `qs`,
+`simple`, and `resolveWithFullResponse` are still passed to `client.request`.
+If existing code depends on throwing for non-2xx responses, set `simple: true`.
+If existing code needs a request-style object with `statusCode`, `headers`, and `body`,
+set `resolveWithFullResponse: false`; otherwise the new client returns a fetch `Response`.
+
+5. Move helper behavior into request options. For example, replace `actingForHeader(request, netId)`
+with `headers: { 'acting-for': netId }`, and replace the old second `request` argument for an
+original JWT with `headers: { 'x-jwt-assertion-original': originalJwt }`.
+
+### Original Documentation
+
 **Requires Node 10+**
 
 #### Installation
