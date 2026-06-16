@@ -3,6 +3,17 @@ Utility for making a server to server request using wso2 authentication
 
 [![codecov](https://codecov.io/gh/byu-oit/byu-wso2-request/branch/main/graph/badge.svg?token=nzJwvKNRGk)](https://codecov.io/gh/byu-oit/byu-wso2-request)
 
+> [!WARNING]
+> **Deprecated**
+>
+> This package is no longer maintained and has been deprecated.
+>
+> Please use **client-byu** instead:
+>
+> https://github.com/byu-oit-sdk/javascript/tree/main/packages/client-byu
+>
+> Existing projects are encouraged to migrate.
+
 **Requires Node 10+**
 
 #### Installation
